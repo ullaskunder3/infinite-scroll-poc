@@ -35,3 +35,18 @@ reactConsoleErrorHandler (/home/ullaskunder/dev-work/projects/FanonAppAssignment
 using cursor-based pagination:
 
  we have feature base architecture: next for home cleanup and seperation of concern
+
+ using zustand so we can avoid prop drilling accross screena and tabs
+
+ home can call open story 
+   2. **HomeScreen.tsx**:
+      • Directly calls const openStory = useAppStore((s) => s.
+      openStory).
+      • Zero callback prop drilling through AppNavigator /
+      AppTabs.
+  3. **StoryDetailScreen.tsx**:
+      • Directly reads selectedStoryId, closeStory, and
+      openChapter from the store.
+  4. **AppNavigator.tsx**:
+      • Simplified to pure tab navigation; listens to
+      selectedStoryId to transition seamlessly.

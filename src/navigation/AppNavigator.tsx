@@ -2,9 +2,11 @@ import { BottomTabNavigationOptions, createBottomTabNavigator } from '@react-nav
 import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
+import { useAppStore } from '../core/store';
 import { HomeScreen } from '../features/home';
 import { ProfileScreen } from '../features/profile';
 import { SearchScreen } from '../features/search';
+import { StoryDetailScreen } from '../features/story-detail';
 import { colors } from '../theme';
 
 export type RootTabParamList = {
@@ -37,17 +39,12 @@ const screenOptions: BottomTabNavigationOptions = {
   tabBarStyle: {
     backgroundColor: colors.surfaceDark,
     borderTopColor: colors.border,
-    borderTopWidth: 1,
     height: 60,
     paddingBottom: 8,
     paddingTop: 6,
   },
   tabBarActiveTintColor: colors.accentGold,
   tabBarInactiveTintColor: colors.textSecondaryDark,
-  tabBarLabelStyle: {
-    fontSize: 11,
-    fontWeight: '600',
-  },
 };
 
 export function AppTabs() {
@@ -79,6 +76,14 @@ export function AppTabs() {
 }
 
 export function AppNavigator() {
+  const selectedStoryId = useAppStore((state) => state.selectedStoryId);
+
+  // When a story is selected, render StoryDetailScreen
+  // its cleaner compared to my previous prop drill and pass state
+  if (selectedStoryId) {
+    return <StoryDetailScreen storyId={selectedStoryId} />;
+  }
+
   return (
     <NavigationContainer>
       <AppTabs />

@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StorySummary } from '../../api';
+import { useAppStore } from '../../core/store';
 import { colors } from '../../theme';
 import {
   FeedSectionHeader,
@@ -23,20 +24,18 @@ import { useHomeStories } from './hooks';
 
 export interface HomeScreenProps {
   onNavigateToProfile?: () => void;
-  onSelectStory?: (storyId: string) => void;
 }
 
 const COLLAPSIBLE_HEADER_HEIGHT = 64;
 const STICKY_CONTROLS_HEIGHT = 104;
 const TOTAL_HEADER_HEIGHT = COLLAPSIBLE_HEADER_HEIGHT + STICKY_CONTROLS_HEIGHT;
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({
-  onNavigateToProfile,
-  onSelectStory,
-}) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToProfile }) => {
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
   const [selectedGenre, setSelectedGenre] = useState('All');
   const scrollY = useRef(new Animated.Value(0)).current;
+
+  const openStory = useAppStore((state) => state.openStory);
 
   const {
     stories,
@@ -81,10 +80,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       <StoryCard
         story={item}
         layout={layout}
-        onPress={() => onSelectStory?.(item.storyId)}
+        onPress={() => openStory(item.storyId)}
       />
     ),
-    [layout, onSelectStory]
+    [layout, openStory]
   );
 
   return (
