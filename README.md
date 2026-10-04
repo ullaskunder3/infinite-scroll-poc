@@ -30,3 +30,6 @@ Call Stack:
 addLog (/home/ullaskunder/dev-work/projects/FanonAppAssignment/node_modules/react-native/Libraries/LogBox/Data/LogBoxData.js:235)
 addConsoleLog (/home/ullaskunder/dev-work/projects/FanonAppAssignment/node_modules/react-native/Libraries/LogBox/LogBox.js:213)
 reactConsoleErrorHandler (/home/ullaskunder/dev-work/projects/FanonAppAssignment/node_modules/react-native/Libraries/Core/ExceptionsManager.js:248)
+
+
+using cursor-based pagination:
