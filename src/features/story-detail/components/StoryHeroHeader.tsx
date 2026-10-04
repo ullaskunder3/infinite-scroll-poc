@@ -69,15 +69,10 @@ export const StoryHeroHeader: React.FC<StoryHeroHeaderProps> = ({
             }
           >
             <Text style={styles.startReadingText}>
-              Start Reading Chapter {firstChapter.chapterNum}
+              Start Reading (Chapter {firstChapter.chapterNum})
             </Text>
           </TouchableOpacity>
         )}
-
-        {/* Chapters Section Label */}
-        <View style={styles.chaptersHeader}>
-          <Text style={styles.chaptersTitle}>Chapters ({chapters.length})</Text>
-        </View>
       </View>
     </View>
   );
@@ -85,7 +80,7 @@ export const StoryHeroHeader: React.FC<StoryHeroHeaderProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 12,
+    marginBottom: 4,
   },
   coverWrapper: {
     width: '100%',
@@ -182,7 +177,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: 12,
     shadowColor: colors.primaryNeon,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -193,15 +188,5 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '800',
-  },
-  chaptersHeader: {
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
-  },
-  chaptersTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#FFFFFF',
   },
 });

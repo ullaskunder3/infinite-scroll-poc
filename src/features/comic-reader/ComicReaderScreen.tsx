@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -12,8 +12,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ComicPage } from '../../api';
 import { useAppStore } from '../../core/store';
 import { colors } from '../../theme';
-import { ComicPageItem } from './components';
-import { useChapterPages } from './hooks';
+import { ChapterDrawerModal, ComicPageItem } from './components';
+import { useChapterPages, useStoryChapters } from './hooks';
 
 export interface ComicReaderScreenProps {
   chapterId?: string;
@@ -26,37 +26,57 @@ export const ComicReaderScreen: React.FC<ComicReaderScreenProps> = ({
   chapterNum: propChapterNum,
   onBack: propOnBack,
 }) => {
+  const storeStoryId = useAppStore((s) => s.selectedStoryId);
   const storeChapterId = useAppStore((s) => s.selectedChapterId);
   const storeChapterNum = useAppStore((s) => s.selectedChapterNum);
   const closeChapter = useAppStore((s) => s.closeChapter);
+  const openChapter = useAppStore((s) => s.openChapter);
 
   const activeChapterId = propChapterId || storeChapterId || '';
   const activeChapterNum = propChapterNum ?? storeChapterNum ?? 1;
   const handleBack = propOnBack || closeChapter;
 
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
   const { pages, chapterNum, isLoading, isError, error, refetch } =
     useChapterPages(activeChapterId);
+
+  const { chapters } = useStoryChapters(storeStoryId);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="light-content" />
 
+      {/* Top Navigation Bar with Back and Chapter Drawer Trigger */}
       <View style={styles.topBar}>
-        <TouchableOpacity
-          onPress={handleBack}
-          style={styles.backButton}
-          activeOpacity={0.7}
-          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-        >
-          <Text style={styles.backIcon}>‹</Text>
-        </TouchableOpacity>
+        <View style={styles.leftGroup}>
+          <TouchableOpacity
+            onPress={handleBack}
+            style={styles.backButton}
+            activeOpacity={0.7}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
+            <Text style={styles.backIcon}>‹</Text>
+          </TouchableOpacity>
 
-        <Text style={styles.topBarTitle}>
-          Chapter {chapterNum ?? activeChapterNum} {pages.length} Pages
-        </Text>
+          <Text style={styles.topBarTitle} numberOfLines={1}>
+            Chapter {chapterNum ?? activeChapterNum} ({pages.length} Pages)
+          </Text>
+        </View>
+
+        {/* Quick Chapter Selector Sheet Trigger */}
+        {chapters.length > 0 && (
+          <TouchableOpacity
+            style={styles.drawerButton}
+            activeOpacity={0.75}
+            onPress={() => setIsDrawerOpen(true)}
+          >
+            <Text style={styles.drawerButtonText}>☰ Chapters</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
-      {/* Reader View */}
+      {/* Main Reader Content */}
       {isLoading ? (
         <View style={styles.centerContainer}>
           <ActivityIndicator size="large" color={colors.primaryNeon} />
@@ -64,7 +84,11 @@ export const ComicReaderScreen: React.FC<ComicReaderScreenProps> = ({
         </View>
       ) : isError ? (
         <View style={styles.centerContainer}>
+          <Text style={styles.errorTitle}>❌ Failed to load chapter</Text>
           <Text style={styles.errorMessage}>{error?.message}</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={refetch}>
+            <Text style={styles.retryText}>Retry</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <FlatList<ComicPage>
@@ -80,6 +104,17 @@ export const ComicReaderScreen: React.FC<ComicReaderScreenProps> = ({
           }
         />
       )}
+
+      {/* Collapsed Chapter List Drawer Sheet */}
+      <ChapterDrawerModal
+        visible={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        chapters={chapters}
+        currentChapterId={activeChapterId}
+        onSelectChapter={(nextId, nextNum) => {
+          openChapter(nextId, nextNum);
+        }}
+      />
     </SafeAreaView>
   );
 };
@@ -90,13 +125,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
   },
   topBar: {
-    height: 52,
+    height: 54,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
-    backgroundColor: 'rgba(9, 13, 11, 0.95)',
+    backgroundColor: '#090D0B',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  leftGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   backButton: {
     width: 36,
@@ -120,6 +161,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#FFFFFF',
+    flex: 1,
+  },
+  drawerButton: {
+    backgroundColor: '#131B17',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  drawerButtonText: {
+    color: '#CBD5E1',
+    fontSize: 12,
+    fontWeight: '700',
   },
   listContent: {
     backgroundColor: '#000000',

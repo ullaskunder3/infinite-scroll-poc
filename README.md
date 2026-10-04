@@ -50,3 +50,8 @@ using cursor-based pagination:
   4. **AppNavigator.tsx**:
       • Simplified to pure tab navigation; listens to
       selectedStoryId to transition seamlessly.
+
+
+hyy make chapter list page collapsable to chapters so from
+  reader if user have that list icon of back icon it can show
+  colapsed list of chapter page ?

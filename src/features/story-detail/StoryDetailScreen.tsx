@@ -13,7 +13,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChapterSummary } from '../../api';
 import { useAppStore } from '../../core/store';
 import { colors } from '../../theme';
-import { ChapterCard, StoryHeroHeader } from './components';
+import {
+  ChapterCard,
+  ChaptersSectionHeader,
+  StoryHeroHeader,
+} from './components';
 import { useStoryDetails } from './hooks';
 
 export interface StoryDetailScreenProps {
@@ -58,11 +62,14 @@ export const StoryDetailScreen: React.FC<StoryDetailScreenProps> = ({
 
   const renderHeader = useCallback(
     () => (
-      <StoryHeroHeader
-        story={story}
-        chapters={chapters}
-        onStartReading={handleSelectChapter}
-      />
+      <View>
+        <StoryHeroHeader
+          story={story}
+          chapters={chapters}
+          onStartReading={handleSelectChapter}
+        />
+        <ChaptersSectionHeader totalChapters={chapters.length} />
+      </View>
     ),
     [story, chapters, handleSelectChapter]
   );
@@ -109,10 +116,6 @@ export const StoryDetailScreen: React.FC<StoryDetailScreenProps> = ({
       ) : isError ? (
         <View style={styles.centerContainer}>
           <Text style={styles.errorTitle}>❌ Unable to load story</Text>
-          <Text style={styles.errorMessage}>{error?.message}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={refetch}>
-            <Text style={styles.retryText}>Retry</Text>
-          </TouchableOpacity>
         </View>
       ) : (
         <FlatList
@@ -157,7 +160,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    backgroundColor: '#090D0B',
   },
   backButton: {
     width: 36,

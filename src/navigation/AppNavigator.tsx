@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
 import { useAppStore } from '../core/store';
+import { ComicReaderScreen } from '../features/comic-reader';
 import { HomeScreen } from '../features/home';
 import { ProfileScreen } from '../features/profile';
 import { SearchScreen } from '../features/search';
@@ -77,13 +78,19 @@ export function AppTabs() {
 
 export function AppNavigator() {
   const selectedStoryId = useAppStore((state) => state.selectedStoryId);
+  const selectedChapterId = useAppStore((state) => state.selectedChapterId);
 
-  // When a story is selected, render StoryDetailScreen
-  // its cleaner compared to my previous prop drill and pass state
+  // 1. Active Comic Reader (Fullscreen immersive)
+  if (selectedChapterId) {
+    return <ComicReaderScreen chapterId={selectedChapterId} />;
+  }
+
+  // 2. Story Detail & Chapter Listing
   if (selectedStoryId) {
     return <StoryDetailScreen storyId={selectedStoryId} />;
   }
 
+  // 3. Main Bottom Tab Discovery Feed
   return (
     <NavigationContainer>
       <AppTabs />
