@@ -14,9 +14,13 @@ export const StoryHeroHeader: React.FC<StoryHeroHeaderProps> = ({
   chapters,
   onStartReading,
 }) => {
+  const [isExpanded, setIsExpanded] = React.useState(false);
+
   if (!story) return null;
 
   const firstChapter = chapters[0];
+  const description = story.description || '';
+  const isLongDescription = description.length > 120;
 
   return (
     <View style={styles.container}>
@@ -56,8 +60,29 @@ export const StoryHeroHeader: React.FC<StoryHeroHeaderProps> = ({
           </View>
         )}
 
-        {/* Description */}
-        <Text style={styles.description}>{story.description}</Text>
+        {/* Expandable Description */}
+        {description ? (
+          <View style={styles.descriptionContainer}>
+            <Text
+              style={styles.description}
+              numberOfLines={isExpanded ? undefined : 3}
+            >
+              {description}
+            </Text>
+            {isLongDescription && (
+              <TouchableOpacity
+                onPress={() => setIsExpanded((prev) => !prev)}
+                activeOpacity={0.7}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                style={styles.readMoreBtn}
+              >
+                <Text style={styles.readMoreText}>
+                  {isExpanded ? 'Show less' : 'Read more'}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        ) : null}
 
         {/* Quick Start Reading CTA */}
         {firstChapter && onStartReading && (
@@ -165,11 +190,22 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '600',
   },
+  descriptionContainer: {
+    marginBottom: 18,
+  },
   description: {
     fontSize: 13,
     color: '#94A3B8',
     lineHeight: 20,
-    marginBottom: 18,
+  },
+  readMoreBtn: {
+    marginTop: 6,
+    alignSelf: 'flex-start',
+  },
+  readMoreText: {
+    color: colors.primaryNeon,
+    fontSize: 12,
+    fontWeight: '700',
   },
   startReadingBtn: {
     backgroundColor: colors.primaryNeon,

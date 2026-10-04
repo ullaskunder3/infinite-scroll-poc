@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChapterSummary } from '../../api';
+import { AppHeader } from '../../components';
 import { useAppStore } from '../../core/store';
 import { colors } from '../../theme';
 import {
@@ -93,20 +94,25 @@ export const StoryDetailScreen: React.FC<StoryDetailScreenProps> = ({
     );
   }, [isFetchingNextPage]);
 
+  const [isBookmarked, setIsBookmarked] = React.useState(false);
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="light-content" />
 
-      <View style={styles.topBar}>
-        <TouchableOpacity
-          onPress={handleBack}
-          style={styles.backButton}
-          activeOpacity={0.7}
-          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-        >
-          <Text style={styles.backIcon}>‹</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Shared Unified Header */}
+      <AppHeader
+        onBack={handleBack}
+        rightAction={
+          <TouchableOpacity
+            style={styles.actionButton}
+            activeOpacity={0.7}
+            onPress={() => setIsBookmarked((prev) => !prev)}
+          >
+            <Text style={styles.actionIcon}>{isBookmarked ? '🔖' : '📑'}</Text>
+          </TouchableOpacity>
+        }
+      />
 
       {isLoading ? (
         <View style={styles.centerContainer}>
@@ -116,6 +122,10 @@ export const StoryDetailScreen: React.FC<StoryDetailScreenProps> = ({
       ) : isError ? (
         <View style={styles.centerContainer}>
           <Text style={styles.errorTitle}>❌ Unable to load story</Text>
+          <Text style={styles.errorMessage}>{error?.message}</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={refetch}>
+            <Text style={styles.retryText}>Retry</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <FlatList
@@ -155,13 +165,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#090D0B',
   },
-  topBar: {
-    height: 54,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-  },
-  backButton: {
+  actionButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
@@ -170,14 +174,9 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
   },
-  backIcon: {
-    color: '#FFFFFF',
-    fontSize: 26,
-    fontWeight: '300',
-    marginTop: -2,
-    lineHeight: 28,
+  actionIcon: {
+    fontSize: 16,
   },
   listContent: {
     paddingHorizontal: 16,

@@ -10,20 +10,22 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ComicPage } from '../../api';
+import { AppHeader } from '../../components';
 import { useAppStore } from '../../core/store';
 import { colors } from '../../theme';
-import { ChapterDrawerModal, ComicPageItem } from './components';
+import {
+  ChapterDrawerModal,
+  ComicPageItem,
+} from './components';
 import { useChapterPages, useStoryChapters } from './hooks';
 
 export interface ComicReaderScreenProps {
   chapterId?: string;
-  chapterNum?: number;
   onBack?: () => void;
 }
 
 export const ComicReaderScreen: React.FC<ComicReaderScreenProps> = ({
   chapterId: propChapterId,
-  chapterNum: propChapterNum,
   onBack: propOnBack,
 }) => {
   const storeStoryId = useAppStore((s) => s.selectedStoryId);
@@ -33,7 +35,6 @@ export const ComicReaderScreen: React.FC<ComicReaderScreenProps> = ({
   const openChapter = useAppStore((s) => s.openChapter);
 
   const activeChapterId = propChapterId || storeChapterId || '';
-  const activeChapterNum = propChapterNum ?? storeChapterNum ?? 1;
   const handleBack = propOnBack || closeChapter;
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -43,50 +44,38 @@ export const ComicReaderScreen: React.FC<ComicReaderScreenProps> = ({
 
   const { chapters } = useStoryChapters(storeStoryId);
 
+  const currentNum = chapterNum ?? storeChapterNum ?? 1;
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="light-content" />
 
-      {/* Top Navigation Bar with Back and Chapter Drawer Trigger */}
-      <View style={styles.topBar}>
-        <View style={styles.leftGroup}>
-          <TouchableOpacity
-            onPress={handleBack}
-            style={styles.backButton}
-            activeOpacity={0.7}
-            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          >
-            <Text style={styles.backIcon}>‹</Text>
-          </TouchableOpacity>
+      {/* Shared Unified Header */}
+      <AppHeader
+        title={`Chapter ${currentNum} (${pages.length} Pages)`}
+        onBack={handleBack}
+        rightAction={
+          chapters.length > 0 ? (
+            <TouchableOpacity
+              style={styles.drawerButton}
+              activeOpacity={0.75}
+              onPress={() => setIsDrawerOpen(true)}
+            >
+              <Text style={styles.drawerButtonText}>☰</Text>
+            </TouchableOpacity>
+          ) : undefined
+        }
+      />
 
-          <Text style={styles.topBarTitle} numberOfLines={1}>
-            Chapter {chapterNum ?? activeChapterNum} ({pages.length} Pages)
-          </Text>
-        </View>
-
-        {/* Quick Chapter Selector Sheet Trigger */}
-        {chapters.length > 0 && (
-          <TouchableOpacity
-            style={styles.drawerButton}
-            activeOpacity={0.75}
-            onPress={() => setIsDrawerOpen(true)}
-          >
-            <Text style={styles.drawerButtonText}>☰ Chapters</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {/* Main Reader Content */}
       {isLoading ? (
         <View style={styles.centerContainer}>
           <ActivityIndicator size="large" color={colors.primaryNeon} />
-          <Text style={styles.loadingText}>Loading comic pages...</Text>
+          <Text style={styles.statusText}>Loading comic pages...</Text>
         </View>
       ) : isError ? (
         <View style={styles.centerContainer}>
           <Text style={styles.errorTitle}>❌ Failed to load chapter</Text>
-          <Text style={styles.errorMessage}>{error?.message}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={refetch}>
+          <TouchableOpacity style={styles.retryBtn} onPress={refetch}>
             <Text style={styles.retryText}>Retry</Text>
           </TouchableOpacity>
         </View>
@@ -99,21 +88,18 @@ export const ComicReaderScreen: React.FC<ComicReaderScreenProps> = ({
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.centerContainer}>
-              <Text style={styles.emptyText}>No pages found for this chapter</Text>
+              <Text style={styles.statusText}>No pages found for this chapter</Text>
             </View>
           }
         />
       )}
 
-      {/* Collapsed Chapter List Drawer Sheet */}
       <ChapterDrawerModal
         visible={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
         chapters={chapters}
         currentChapterId={activeChapterId}
-        onSelectChapter={(nextId, nextNum) => {
-          openChapter(nextId, nextNum);
-        }}
+        onSelectChapter={(nextId, nextNum) => openChapter(nextId, nextNum)}
       />
     </SafeAreaView>
   );
@@ -124,22 +110,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000000',
   },
-  topBar: {
-    height: 54,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    backgroundColor: '#090D0B',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
-  },
-  leftGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  backButton: {
+  drawerButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
@@ -148,32 +119,10 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
-  },
-  backIcon: {
-    color: '#FFFFFF',
-    fontSize: 26,
-    fontWeight: '300',
-    marginTop: -2,
-    lineHeight: 28,
-  },
-  topBarTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    flex: 1,
-  },
-  drawerButton: {
-    backgroundColor: '#131B17',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   drawerButtonText: {
     color: '#CBD5E1',
-    fontSize: 12,
+    fontSize: 16,
     fontWeight: '700',
   },
   listContent: {
@@ -186,36 +135,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 24,
   },
-  loadingText: {
-    marginTop: 12,
+  statusText: {
+    marginTop: 10,
     color: colors.textSecondaryDark,
-    fontSize: 14,
+    fontSize: 13,
+    textAlign: 'center',
   },
   errorTitle: {
     color: '#ff6b6b',
     fontSize: 16,
     fontWeight: '700',
-    marginBottom: 8,
   },
-  errorMessage: {
-    color: colors.textSecondaryDark,
-    textAlign: 'center',
-    fontSize: 13,
-    marginBottom: 16,
-  },
-  retryButton: {
+  retryBtn: {
     backgroundColor: colors.primaryNeon,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingHorizontal: 18,
+    paddingVertical: 8,
     borderRadius: 8,
+    marginTop: 14,
   },
   retryText: {
     color: '#FFFFFF',
     fontWeight: '700',
-    fontSize: 14,
-  },
-  emptyText: {
-    color: colors.textSecondaryDark,
-    fontSize: 14,
+    fontSize: 13,
   },
 });
