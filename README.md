@@ -33,3 +33,5 @@ reactConsoleErrorHandler (/home/ullaskunder/dev-work/projects/FanonAppAssignment
 
 
 using cursor-based pagination:
+
+ we have feature base architecture: next for home cleanup and seperation of concern
