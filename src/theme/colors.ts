@@ -2,6 +2,7 @@ export const colors = {
   primary: '#2E7D32',
   primaryLight: '#E8F5E9',
   primaryDark: '#1B5E20',
+  primaryNeon: '#10B981',
   accentGold: '#F9A825',
   accentGoldDark: '#D4881A',
 
@@ -20,4 +21,6 @@ export const colors = {
   black: '#000000',
   border: '#1E3A2D',
   shadow: 'rgba(0, 0, 0, 0.25)',
+  cardBg: '#122018',
+  inputBg: '#10241A',
 };
