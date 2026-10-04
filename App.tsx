@@ -3,6 +3,9 @@ import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SplashScreen } from './src/features/splash';
 import { AppNavigator } from './src/navigation';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient()
 
 function App(): React.JSX.Element {
   const [showSplash, setShowSplash] = useState(true);
@@ -12,20 +15,17 @@ function App(): React.JSX.Element {
     setShowSplash(false);
   }, []);
 
-  if (showSplash) {
-    return (
+  return (
+    <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
         <StatusBar barStyle="light-content" />
-        <SplashScreen onFinish={handleSplashFinish} />
+        {showSplash ? (
+          <SplashScreen onFinish={handleSplashFinish} />
+        ) : (
+          <AppNavigator />
+        )}
       </SafeAreaProvider>
-    );
-  }
-
-  return (
-    <SafeAreaProvider>
-      <StatusBar barStyle="light-content" />
-      <AppNavigator />
-    </SafeAreaProvider>
+    </QueryClientProvider>
   );
 }
 

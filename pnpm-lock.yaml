@@ -8,12 +8,18 @@ importers:
 
   .:
     dependencies:
+      '@react-native-async-storage/async-storage':
+        specifier: ^3.1.1
+        version: 3.1.1(react-native@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
       '@react-navigation/bottom-tabs':
         specifier: ^7.20.0
         version: 7.20.0(e465926f8389b5b4ccfa648525252f70)
       '@react-navigation/native':
         specifier: ^7.5.0
         version: 7.5.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+      '@tanstack/react-query':
+        specifier: ^5.104.1
+        version: 5.104.1(react@19.2.3)
       react:
         specifier: 19.2.3
         version: 19.2.3
@@ -26,6 +32,9 @@ importers:
       react-native-screens:
         specifier: ^4.28.0
         version: 4.28.0(react-native@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)
+      zustand:
+        specifier: ^5.0.15
+        version: 5.0.15(@types/react@19.3.0)(react@19.2.3)(use-sync-external-store@1.7.0(react@19.2.3))
     devDependencies:
       '@babel/core':
         specifier: ^7.25.2
@@ -60,6 +69,9 @@ importers:
       '@react-native/typescript-config':
         specifier: 0.87.1
         version: 0.87.1
+      '@tanstack/eslint-plugin-query':
+        specifier: ^5.104.1
+        version: 5.104.1(eslint@8.57.1(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)
       '@types/jest':
         specifier: ^29.5.13
         version: 29.5.14
@@ -904,6 +916,12 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
+  '@react-native-async-storage/async-storage@3.1.1':
+    resolution: {integrity: sha512-z+PnLz1n6ECKhgoHZHkfc+dijXZEyZnNFSajbtE0NEbsJhmX8x9GlOeiMQIKX2E4DUqPSgfIh4FYBv1M49KgPQ==}
+    peerDependencies:
+      react: '*'
+      react-native: '*'
+
   '@react-native-community/cli-clean@20.2.0':
     resolution: {integrity: sha512-krqbhFiwHN8l5wZ2XTcrNq9N+DqDWHxW8RK0bIcrK0O+fMvjYi9e/1Pnx2W0CTotOVcZpHzUbgZ4TQVF231Skw==}
 
@@ -1090,6 +1108,23 @@ packages:
 
   '@sinonjs/fake-timers@10.3.0':
     resolution: {integrity: sha512-V4BG07kuYSUkTCSBHG8G8TNhM+F19jXFWnQtzj+we8DrkpSBCee9Z3Ms8yiGer/dlmhe35/Xdgyo3/0rQKg7YA==}
+
+  '@tanstack/eslint-plugin-query@5.104.1':
+    resolution: {integrity: sha512-7LmiJkxzuy0YrCoL0q5yWz9NsW39h2CeuKjvetjVaFCJ9hrS4UM9TiCEx0rWeLDe6ff1r1KwV+yzclCvzzrnQg==}
+    peerDependencies:
+      eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
+      typescript: ^5.6.0 || ^6.0.0 || ^7.0.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  '@tanstack/query-core@5.104.1':
+    resolution: {integrity: sha512-TiRghcrGkUTE+M4JBxvpPSpBhxvIzQairw+cksrHYGr+2uwC77yW1SY9nYxnYRYOppvucf8rEg6b5byoz4rTpw==}
+
+  '@tanstack/react-query@5.104.1':
+    resolution: {integrity: sha512-Zz70EgjahNI7aCz8BZxM3vUGU44ycxEAzMuCUjLeA7SVhhOkg3ZgPjPJPvHjs6Rmky/dtmnu1WzjGHNHmhCoZQ==}
+    peerDependencies:
+      react: ^18 || ^19
 
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -2124,6 +2159,9 @@ packages:
   iconv-lite@0.7.3:
     resolution: {integrity: sha512-IKXpvIzjnC9XTAUbVBcMfGS0EPaIXtW6v+zr+RRp+hqULEpo0owZax6wyRwPOJbWbzjYspQwusTsfVr0ifh4uQ==}
     engines: {node: '>=0.10.0'}
+
+  idb@8.0.3:
+    resolution: {integrity: sha512-LtwtVyVYO5BqRvcsKuB2iUMnHwPVByPCXFXOpuU96IZPPoPN6xjOGxZQ74pgSVVLQWtUOYgyeL4GE98BY5D3wg==}
 
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
@@ -3596,6 +3634,24 @@ packages:
   zod@4.6.5:
     resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
 
+  zustand@5.0.15:
+    resolution: {integrity: sha512-MpSEjRiBkA9crSYeOUH32rJC7SVqAbm0Fqcqge/bUi2PPoLcBWKOsG+C8mevmpr8TwXHBVkChbbJiyvkE+i/3A==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=18.0.0'
+      immer: '>=9.0.6'
+      react: '>=18.0.0'
+      use-sync-external-store: '>=1.2.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+      use-sync-external-store:
+        optional: true
+
 snapshots:
 
   '@babel/code-frame@7.29.7':
@@ -4687,6 +4743,12 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.3
 
+  '@react-native-async-storage/async-storage@3.1.1(react-native@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.2.3)(supports-color@8.1.1))(react@19.2.3)':
+    dependencies:
+      idb: 8.0.3
+      react: 19.2.3
+      react-native: 0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native-community/cli@20.2.0(supports-color@8.1.1)(typescript@6.0.3))(@react-native/metro-config@0.87.1(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.2.3)(supports-color@8.1.1)
+
   '@react-native-community/cli-clean@20.2.0':
     dependencies:
       '@react-native-community/cli-tools': 20.2.0
@@ -5057,6 +5119,22 @@ snapshots:
   '@sinonjs/fake-timers@10.3.0':
     dependencies:
       '@sinonjs/commons': 3.0.1
+
+  '@tanstack/eslint-plugin-query@5.104.1(eslint@8.57.1(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)':
+    dependencies:
+      '@typescript-eslint/utils': 8.71.0(eslint@8.57.1(supports-color@8.1.1))(supports-color@8.1.1)(typescript@6.0.3)
+      eslint: 8.57.1(supports-color@8.1.1)
+    optionalDependencies:
+      typescript: 6.0.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@tanstack/query-core@5.104.1': {}
+
+  '@tanstack/react-query@5.104.1(react@19.2.3)':
+    dependencies:
+      '@tanstack/query-core': 5.104.1
+      react: 19.2.3
 
   '@types/babel__core@7.20.5':
     dependencies:
@@ -6334,6 +6412,8 @@ snapshots:
   iconv-lite@0.7.3:
     dependencies:
       safer-buffer: 2.1.2
+
+  idb@8.0.3: {}
 
   ieee754@1.2.1: {}
 
@@ -8155,3 +8235,9 @@ snapshots:
       zod: 4.6.5
 
   zod@4.6.5: {}
+
+  zustand@5.0.15(@types/react@19.3.0)(react@19.2.3)(use-sync-external-store@1.7.0(react@19.2.3)):
+    optionalDependencies:
+      '@types/react': 19.3.0
+      react: 19.2.3
+      use-sync-external-store: 1.7.0(react@19.2.3)
