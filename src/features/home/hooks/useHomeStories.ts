@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { storiesApi, StoryList } from '../../../api';
 
-const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 20;
 
 export const HOME_QUERY_KEYS = {
   all: ['stories'] as const,
@@ -57,6 +57,7 @@ export function useHomeStories(limit = DEFAULT_PAGE_SIZE) {
     isRefetching,
     hasNextPage: Boolean(hasNextPage),
     isFetchingNextPage,
+    fetchNextPage,
     handleEndReached,
   };
 }

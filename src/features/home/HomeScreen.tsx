@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   RefreshControl,
@@ -46,8 +46,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToProfile }) =
     isRefetching,
     hasNextPage,
     isFetchingNextPage,
-    handleEndReached,
-  } = useHomeStories(10);
+    fetchNextPage,
+  } = useHomeStories(20);
+
+  const flatListRef = useRef<any>(null);
+
+  const handleSelectCategory = useCallback((category: string) => {
+    setSelectedGenre(category);
+    flatListRef.current?.scrollToOffset({ offset: 0, animated: false });
+  }, []);
 
   // Derive unique categories dynamically
   const genres = useMemo(() => {
@@ -61,6 +68,32 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToProfile }) =
     if (selectedGenre === 'All') return stories;
     return stories.filter((story) => story.tags?.includes(selectedGenre));
   }, [stories, selectedGenre]);
+
+  // Auto-fetch more stories in the background if a selected category is sparse (< 4 items)
+  useEffect(() => {
+    if (
+      selectedGenre !== 'All' &&
+      filteredStories.length < 4 &&
+      hasNextPage &&
+      !isFetchingNextPage &&
+      !isLoading
+    ) {
+      fetchNextPage();
+    }
+  }, [
+    selectedGenre,
+    filteredStories.length,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    fetchNextPage,
+  ]);
+
+  const handleEndReached = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Collapsible animation: slides HomeHeader up and locks controls at top
   const headerTranslateY = scrollY.interpolate({
@@ -141,7 +174,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToProfile }) =
           <GenreFilter
             categories={genres}
             selectedCategory={selectedGenre}
-            onSelectCategory={setSelectedGenre}
+            onSelectCategory={handleSelectCategory}
           />
           <FeedSectionHeader
             selectedGenre={selectedGenre}
@@ -152,8 +185,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToProfile }) =
 
         {/* 3. Main Virtualized Feed */}
         <Animated.FlatList
+          ref={flatListRef}
           key={layout}
           data={filteredStories}
+          extraData={selectedGenre}
           numColumns={layout === 'grid' ? 2 : 1}
           keyExtractor={(item) => item.storyId}
           renderItem={renderItem}
