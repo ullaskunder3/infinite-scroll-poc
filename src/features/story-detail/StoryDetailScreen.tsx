@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AlertCircle } from 'lucide-react-native';
 import { ChapterSummary } from '../../api';
 import { AppHeader } from '../../components';
+import { useBackHandler } from '../../core/hooks';
 import { useAppStore } from '../../core/store';
 import { colors } from '../../theme';
 import {
@@ -40,6 +41,8 @@ export const StoryDetailScreen: React.FC<StoryDetailScreenProps> = ({
   const activeStoryId = propStoryId || storeStoryId || '';
   const handleBack = propOnBack || closeStory;
   const handleSelectChapter = propOnSelectChapter || openChapter;
+
+  useBackHandler(handleBack);
 
   const {
     story,

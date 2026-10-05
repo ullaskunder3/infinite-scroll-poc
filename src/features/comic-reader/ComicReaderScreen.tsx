@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBackHandler } from '../../core/hooks';
 import { useAppStore } from '../../core/store';
 import {
   ChapterDrawerModal,
@@ -29,6 +30,8 @@ export const ComicReaderScreen: React.FC<ComicReaderScreenProps> = ({
 
   const activeChapterId = propChapterId || storeChapterId || '';
   const handleBack = propOnBack || closeChapter;
+
+  useBackHandler(handleBack);
 
   const [isBookView, setIsBookView] = useState(isLandscape);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
