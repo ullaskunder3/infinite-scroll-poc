@@ -3,6 +3,7 @@ export * from './BookViewItem';
 export * from './SinglePageView';
 export * from './BookPageView';
 export * from './ComicSvgLoader';
+export * from './PageIndicator';
 export * from './PageLoader';
 export * from './PinchZoomWrapper';
 export * from './ReaderContent';

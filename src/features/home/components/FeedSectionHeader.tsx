@@ -7,17 +7,19 @@ export interface FeedSectionHeaderProps {
   selectedGenre: string;
   layout: 'grid' | 'list';
   onSelectLayout: (layout: 'grid' | 'list') => void;
+  style?: any;
 }
 
 export const FeedSectionHeader: React.FC<FeedSectionHeaderProps> = ({
   selectedGenre,
   layout,
   onSelectLayout,
+  style,
 }) => {
   const title = selectedGenre === 'All' ? 'Popular Series' : `${selectedGenre} Series`;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       <Text style={styles.title}>{title}</Text>
 
       {/* View Mode Toggle Segment */}

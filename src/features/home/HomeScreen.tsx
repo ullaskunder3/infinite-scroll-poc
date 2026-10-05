@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Animated,
+  FlatList,
   RefreshControl,
   StatusBar,
   StyleSheet,
@@ -10,7 +10,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StorySummary } from '../../api';
 import { useAppStore } from '../../core/store';
 import { colors } from '../../theme';
+import { useReadProgressStore } from '../comic-reader/store';
 import {
+  ContinueReadingCard,
   FeedSectionHeader,
   GenreFilter,
   HomeEmptyView,
@@ -26,16 +28,20 @@ export interface HomeScreenProps {
   onNavigateToProfile?: () => void;
 }
 
-const COLLAPSIBLE_HEADER_HEIGHT = 64;
-const STICKY_CONTROLS_HEIGHT = 104;
-const TOTAL_HEADER_HEIGHT = COLLAPSIBLE_HEADER_HEIGHT + STICKY_CONTROLS_HEIGHT;
-
 export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToProfile }) => {
   const [layout, setLayout] = useState<'grid' | 'list'>('grid');
   const [selectedGenre, setSelectedGenre] = useState('All');
-  const scrollY = useRef(new Animated.Value(0)).current;
 
   const openStory = useAppStore((state) => state.openStory);
+  const openChapter = useAppStore((state) => state.openChapter);
+
+  const lastRead = useReadProgressStore((s) => s.lastRead);
+
+  const handleContinueReading = useCallback(() => {
+    if (!lastRead) return;
+    openStory(lastRead.storyId);
+    openChapter(lastRead.chapterId, lastRead.chapterNum, lastRead.pageNum);
+  }, [lastRead, openStory, openChapter]);
 
   const {
     stories,
@@ -49,7 +55,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToProfile }) =
     fetchNextPage,
   } = useHomeStories(20);
 
-  const flatListRef = useRef<any>(null);
+  const flatListRef = useRef<FlatList<StorySummary>>(null);
 
   const handleSelectCategory = useCallback((category: string) => {
     setSelectedGenre(category);
@@ -95,19 +101,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToProfile }) =
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Collapsible animation: slides HomeHeader up and locks controls at top
-  const headerTranslateY = scrollY.interpolate({
-    inputRange: [0, COLLAPSIBLE_HEADER_HEIGHT],
-    outputRange: [0, -COLLAPSIBLE_HEADER_HEIGHT],
-    extrapolate: 'clamp',
-  });
-
-  const headerOpacity = scrollY.interpolate({
-    inputRange: [0, COLLAPSIBLE_HEADER_HEIGHT * 0.7],
-    outputRange: [1, 0],
-    extrapolate: 'clamp',
-  });
-
   const renderItem = useCallback(
     ({ item }: { item: StorySummary }) => (
       <StoryCard
@@ -148,85 +141,69 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToProfile }) =
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="light-content" />
 
-      <View style={styles.contentWrapper}>
-        {/* 1. Collapsible Top Welcome Header */}
-        <Animated.View
-          style={[
-            styles.collapsibleHeader,
-            {
-              transform: [{ translateY: headerTranslateY }],
-              opacity: headerOpacity,
-            },
-          ]}
-        >
-          <HomeHeader onProfilePress={onNavigateToProfile} />
-        </Animated.View>
+      {/* 1. Header */}
+      <HomeHeader onProfilePress={onNavigateToProfile} />
 
-        {/* 2. Sticky Action Area (Categories + Feed Controls) */}
-        <Animated.View
-          style={[
-            styles.stickyControls,
-            {
-              transform: [{ translateY: headerTranslateY }],
-            },
-          ]}
-        >
-          <GenreFilter
-            categories={genres}
-            selectedCategory={selectedGenre}
-            onSelectCategory={handleSelectCategory}
-          />
-          <FeedSectionHeader
-            selectedGenre={selectedGenre}
-            layout={layout}
-            onSelectLayout={setLayout}
-          />
-        </Animated.View>
+      {/* 2. Categories Filter */}
+      <GenreFilter
+        categories={genres}
+        selectedCategory={selectedGenre}
+        onSelectCategory={handleSelectCategory}
+      />
 
-        {/* 3. Main Virtualized Feed */}
-        <Animated.FlatList
-          ref={flatListRef}
-          key={layout}
-          data={filteredStories}
-          extraData={selectedGenre}
-          numColumns={layout === 'grid' ? 2 : 1}
-          keyExtractor={(item) => item.storyId}
-          renderItem={renderItem}
-          columnWrapperStyle={layout === 'grid' ? styles.columnWrapper : undefined}
-          contentContainerStyle={styles.listContent}
-          ItemSeparatorComponent={renderItemSeparator}
-          initialNumToRender={8}
-          maxToRenderPerBatch={8}
-          windowSize={7}
-          updateCellsBatchingPeriod={50}
-          ListFooterComponent={
-            <ListFooter
-              isFetchingNextPage={isFetchingNextPage}
-              hasNextPage={hasNextPage}
-              totalCount={filteredStories.length}
+      {/* 3. Feed List */}
+      <FlatList
+        ref={flatListRef}
+        key={layout}
+        data={filteredStories}
+        extraData={selectedGenre}
+        numColumns={layout === 'grid' ? 2 : 1}
+        keyExtractor={(item) => item.storyId}
+        renderItem={renderItem}
+        columnWrapperStyle={layout === 'grid' ? styles.columnWrapper : undefined}
+        contentContainerStyle={styles.listContent}
+        ItemSeparatorComponent={renderItemSeparator}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={7}
+        updateCellsBatchingPeriod={50}
+        ListHeaderComponent={
+          <View style={styles.listHeaderWrapper}>
+            {lastRead ? (
+              <ContinueReadingCard
+                progress={lastRead}
+                onPress={handleContinueReading}
+              />
+            ) : null}
+            <FeedSectionHeader
+              selectedGenre={selectedGenre}
+              layout={layout}
+              onSelectLayout={setLayout}
+              style={styles.feedHeader}
             />
-          }
-          onEndReached={handleEndReached}
-          onEndReachedThreshold={0.5}
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-            { useNativeDriver: true }
-          )}
-          scrollEventThrottle={16}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefetching}
-              onRefresh={() => {
-                void refetch();
-              }}
-              progressViewOffset={TOTAL_HEADER_HEIGHT}
-              tintColor={colors.primaryNeon}
-              colors={[colors.primaryNeon, colors.accentGold]}
-            />
-          }
-          ListEmptyComponent={<HomeEmptyView />}
-        />
-      </View>
+          </View>
+        }
+        ListFooterComponent={
+          <ListFooter
+            isFetchingNextPage={isFetchingNextPage}
+            hasNextPage={hasNextPage}
+            totalCount={filteredStories.length}
+          />
+        }
+        onEndReached={handleEndReached}
+        onEndReachedThreshold={0.5}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={() => {
+              void refetch();
+            }}
+            tintColor={colors.primaryNeon}
+            colors={[colors.primaryNeon, colors.accentGold]}
+          />
+        }
+        ListEmptyComponent={<HomeEmptyView />}
+      />
     </SafeAreaView>
   );
 };
@@ -236,33 +213,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#090D0B',
   },
-  contentWrapper: {
-    flex: 1,
-    position: 'relative',
-  },
-  collapsibleHeader: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: COLLAPSIBLE_HEADER_HEIGHT,
-    zIndex: 10,
-    backgroundColor: '#090D0B',
-  },
-  stickyControls: {
-    position: 'absolute',
-    top: COLLAPSIBLE_HEADER_HEIGHT,
-    left: 0,
-    right: 0,
-    zIndex: 20,
-    backgroundColor: '#090D0B',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
-  },
   listContent: {
-    paddingTop: TOTAL_HEADER_HEIGHT + 8,
     paddingHorizontal: 16,
+    paddingTop: 10,
     paddingBottom: 24,
+  },
+  listHeaderWrapper: {
+    marginBottom: 8,
+  },
+  feedHeader: {
+    paddingHorizontal: 0,
+    paddingTop: 4,
+    paddingBottom: 12,
+    backgroundColor: 'transparent',
   },
   columnWrapper: {
     gap: 12,

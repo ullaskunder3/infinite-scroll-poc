@@ -18,14 +18,18 @@ export interface BookPageViewProps {
   pages: ComicPage[];
   screenWidth: number;
   screenHeight: number;
+  initialPage?: number;
   onTap: () => void;
+  onPageChange?: (pageNum: number) => void;
 }
 
 export const BookPageView: React.FC<BookPageViewProps> = ({
   pages,
   screenWidth,
   screenHeight,
+  initialPage,
   onTap,
+  onPageChange,
 }) => {
   const zoomScale = useReaderStore((s) => s.zoomScale);
 
@@ -75,6 +79,27 @@ export const BookPageView: React.FC<BookPageViewProps> = ({
     return pairs;
   }, [pages]);
 
+  // Scroll to spread containing initialPage on open
+  const hasScrolledRef = useRef(false);
+
+  useEffect(() => {
+    if (!hasScrolledRef.current && initialPage && initialPage > 1 && bookPairs.length > 0) {
+      hasScrolledRef.current = true;
+      const targetPairIndex = bookPairs.findIndex((pair) =>
+        pair.pageIndices.includes(initialPage - 1)
+      );
+      if (targetPairIndex >= 0) {
+        currentIndexRef.current = targetPairIndex;
+        setTimeout(() => {
+          flatListRef.current?.scrollToIndex({
+            index: targetPairIndex,
+            animated: false,
+          });
+        }, 60);
+      }
+    }
+  }, [initialPage, bookPairs]);
+
   const goToPrev = () => {
     if (currentIndexRef.current > 0) {
       const nextIndex = currentIndexRef.current - 1;
@@ -96,6 +121,12 @@ export const BookPageView: React.FC<BookPageViewProps> = ({
     const index = Math.round(offsetX / renderWidth);
     if (index >= 0 && index < bookPairs.length) {
       currentIndexRef.current = index;
+      // Report the first page of the visible spread
+      if (onPageChange) {
+        const pair = bookPairs[index];
+        const firstPageNum = pages[pair.pageIndices[0]]?.pageNum ?? 1;
+        onPageChange(firstPageNum);
+      }
     }
   };
 
@@ -114,6 +145,14 @@ export const BookPageView: React.FC<BookPageViewProps> = ({
       removeClippedSubviews
       keyExtractor={(item) => item.id}
       onMomentumScrollEnd={handleScrollEnd}
+      onScrollToIndexFailed={(info) => {
+        setTimeout(() => {
+          flatListRef.current?.scrollToIndex({
+            index: info.index,
+            animated: false,
+          });
+        }, 80);
+      }}
       renderItem={({ item }) => (
         <BookViewItem
           pair={item}

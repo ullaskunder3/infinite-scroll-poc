@@ -62,10 +62,16 @@ export function AppTabs() {
 export function AppNavigator() {
   const selectedStoryId = useAppStore((state) => state.selectedStoryId);
   const selectedChapterId = useAppStore((state) => state.selectedChapterId);
+  const selectedInitialPage = useAppStore((state) => state.selectedInitialPage);
 
   // 1. Active Comic Reader (Fullscreen immersive)
   if (selectedChapterId) {
-    return <ComicReaderScreen chapterId={selectedChapterId} />;
+    return (
+      <ComicReaderScreen
+        chapterId={selectedChapterId}
+        initialPage={selectedInitialPage ?? 1}
+      />
+    );
   }
 
   // 2. Story Detail & Chapter Listing

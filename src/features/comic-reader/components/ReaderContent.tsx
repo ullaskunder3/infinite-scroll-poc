@@ -21,7 +21,9 @@ export interface ReaderContentProps {
   pages: ComicPage[];
   screenWidth: number;
   screenHeight: number;
+  initialPage?: number;
   onTap: () => void;
+  onPageChange?: (pageNum: number) => void;
 }
 
 export const ReaderContent: React.FC<ReaderContentProps> = ({
@@ -33,7 +35,9 @@ export const ReaderContent: React.FC<ReaderContentProps> = ({
   pages,
   screenWidth,
   screenHeight,
+  initialPage,
   onTap,
+  onPageChange,
 }) => {
   if (isLoading) {
     return (
@@ -63,13 +67,17 @@ export const ReaderContent: React.FC<ReaderContentProps> = ({
           pages={pages}
           screenWidth={screenWidth}
           screenHeight={screenHeight}
+          initialPage={initialPage}
           onTap={onTap}
+          onPageChange={onPageChange}
         />
       ) : (
         <SinglePageView
           pages={pages}
           screenWidth={screenWidth}
+          initialPage={initialPage}
           onTap={onTap}
+          onPageChange={onPageChange}
         />
       )}
     </PinchZoomWrapper>
