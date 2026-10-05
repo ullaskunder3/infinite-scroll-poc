@@ -1,3 +1,6 @@
+DESIGN thought:
+https://www.figma.com/design/UQuAAaRwzlC7zyTOMzf47n/Untitled?node-id=1-18&t=slwJBhBeO1DrEYc9-0
+
 ### Architecture Write-Up
 
 When starting this assignment, I decided to structure the project using a **Feature-Based Architecture**. Instead of grouping files by functional type (e.g., putting all hooks together and all components together), I modularized the codebase into distinct vertical slices like `home`, `story-detail`, and `comic-reader`. This encapsulation prevents scattered imports and keeps the codebase maintainable as the project grows.
