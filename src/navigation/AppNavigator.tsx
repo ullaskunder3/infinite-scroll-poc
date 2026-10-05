@@ -1,7 +1,7 @@
 import { BottomTabNavigationOptions, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { Home, Search, User } from 'lucide-react-native';
 import { useAppStore } from '../core/store';
 import { ComicReaderScreen } from '../features/comic-reader';
 import { HomeScreen } from '../features/home';
@@ -17,23 +17,6 @@ export type RootTabParamList = {
 };
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
-
-function TabIcon({ label, focused }: { label: string; focused: boolean }) {
-  const icons: Record<string, string> = {
-    Home: '🏠',
-    Search: '🔍',
-    Profile: '👤',
-  };
-  return (
-    <Text style={[tabIconStyles.icon, { opacity: focused ? 1 : 0.5 }]}>
-      {icons[label]}
-    </Text>
-  );
-}
-
-const tabIconStyles = StyleSheet.create({
-  icon: { fontSize: 20 },
-});
 
 const screenOptions: BottomTabNavigationOptions = {
   headerShown: false,
@@ -55,21 +38,21 @@ export function AppTabs() {
         name="Home"
         component={HomeScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon label="Home" focused={focused} />,
+          tabBarIcon: ({ color }) => <Home size={22} color={color} />,
         }}
       />
       <Tab.Screen
         name="Search"
         component={SearchScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon label="Search" focused={focused} />,
+          tabBarIcon: ({ color }) => <Search size={22} color={color} />,
         }}
       />
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
         options={{
-          tabBarIcon: ({ focused }) => <TabIcon label="Profile" focused={focused} />,
+          tabBarIcon: ({ color }) => <User size={22} color={color} />,
         }}
       />
     </Tab.Navigator>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { LayoutGrid, List } from 'lucide-react-native';
 import { colors } from '../../../theme';
 
 export interface FeedSectionHeaderProps {
@@ -26,9 +27,10 @@ export const FeedSectionHeader: React.FC<FeedSectionHeaderProps> = ({
           activeOpacity={0.75}
           style={[styles.toggleBtn, layout === 'grid' && styles.toggleBtnActive]}
         >
-          <Text style={[styles.toggleIcon, layout === 'grid' && styles.toggleIconActive]}>
-            ⊞
-          </Text>
+          <LayoutGrid
+            size={16}
+            color={layout === 'grid' ? '#FFFFFF' : '#64748B'}
+          />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -36,9 +38,10 @@ export const FeedSectionHeader: React.FC<FeedSectionHeaderProps> = ({
           activeOpacity={0.75}
           style={[styles.toggleBtn, layout === 'list' && styles.toggleBtnActive]}
         >
-          <Text style={[styles.toggleIcon, layout === 'list' && styles.toggleIconActive]}>
-            ☰
-          </Text>
+          <List
+            size={16}
+            color={layout === 'list' ? '#FFFFFF' : '#64748B'}
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -80,13 +83,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(16, 185, 129, 0.2)',
     borderWidth: 1,
     borderColor: colors.primaryNeon,
-  },
-  toggleIcon: {
-    fontSize: 13,
-    color: '#64748B',
-    fontWeight: '700',
-  },
-  toggleIconActive: {
-    color: '#FFFFFF',
   },
 });

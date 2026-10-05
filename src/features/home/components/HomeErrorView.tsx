@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AlertCircle } from 'lucide-react-native';
 import { colors } from '../../../theme';
 
 export interface HomeErrorViewProps {
@@ -10,7 +11,8 @@ export interface HomeErrorViewProps {
 export const HomeErrorView: React.FC<HomeErrorViewProps> = ({ message, onRetry }) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>❌ Failed to Load Stories</Text>
+      <AlertCircle size={32} color="#ff6b6b" style={styles.icon} />
+      <Text style={styles.title}>Failed to Load Stories</Text>
       <Text style={styles.message}>{message ?? 'An unexpected error occurred.'}</Text>
       <TouchableOpacity style={styles.button} onPress={onRetry} activeOpacity={0.8}>
         <Text style={styles.buttonText}>Retry</Text>
@@ -25,6 +27,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
+  },
+  icon: {
+    marginBottom: 8,
   },
   title: {
     color: '#ff6b6b',

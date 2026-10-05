@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Eye, FileText, X } from 'lucide-react-native';
 import { ChapterSummary } from '../../../api';
 import { colors } from '../../../theme';
 
@@ -46,7 +47,7 @@ export const ChapterDrawerModal: React.FC<ChapterDrawerModalProps> = ({
             <View style={styles.headerRow}>
               <Text style={styles.sheetTitle}>Chapters ({chapters.length})</Text>
               <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-                <Text style={styles.closeText}>✕</Text>
+                <X size={16} color="#CBD5E1" strokeWidth={2.5} />
               </TouchableOpacity>
             </View>
           </View>
@@ -90,9 +91,17 @@ export const ChapterDrawerModal: React.FC<ChapterDrawerModalProps> = ({
                     <Text style={styles.itemDesc} numberOfLines={1}>
                       {item.description || `Chapter ${item.chapterNum}`}
                     </Text>
-                    <Text style={styles.itemMeta}>
-                      📄 {item.pageCount} pages • 👁 {item.views}
-                    </Text>
+                    <View style={styles.metaRow}>
+                      <View style={styles.metaItem}>
+                        <FileText size={12} color="#64748B" />
+                        <Text style={styles.metaText}>{item.pageCount} pages</Text>
+                      </View>
+                      <Text style={styles.metaDot}>•</Text>
+                      <View style={styles.metaItem}>
+                        <Eye size={12} color="#64748B" />
+                        <Text style={styles.metaText}>{item.views}</Text>
+                      </View>
+                    </View>
                   </View>
                 </TouchableOpacity>
               );
@@ -156,11 +165,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  closeText: {
-    color: '#CBD5E1',
-    fontSize: 14,
-    fontWeight: '700',
-  },
   listContent: {
     padding: 16,
     gap: 8,
@@ -217,9 +221,23 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
     marginTop: 2,
   },
-  itemMeta: {
-    fontSize: 10,
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    gap: 6,
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  metaDot: {
     color: '#64748B',
-    marginTop: 2,
+    fontSize: 10,
+  },
+  metaText: {
+    fontSize: 11,
+    color: '#64748B',
   },
 });

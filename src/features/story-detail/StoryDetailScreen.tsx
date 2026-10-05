@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AlertCircle } from 'lucide-react-native';
 import { ChapterSummary } from '../../api';
 import { AppHeader } from '../../components';
 import { useAppStore } from '../../core/store';
@@ -38,11 +39,7 @@ export const StoryDetailScreen: React.FC<StoryDetailScreenProps> = ({
 
   const activeStoryId = propStoryId || storeStoryId || '';
   const handleBack = propOnBack || closeStory;
-  const handleSelectChapter =
-    propOnSelectChapter ||
-    ((chapId: string, chapNum: number) => {
-      openChapter(chapId, chapNum);
-    });
+  const handleSelectChapter = propOnSelectChapter || openChapter;
 
   const {
     story,
@@ -52,17 +49,13 @@ export const StoryDetailScreen: React.FC<StoryDetailScreenProps> = ({
     error,
     refetch,
     isRefetching,
+    fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    fetchNextPage,
   } = useStoryDetails(activeStoryId);
 
-  const handleRefresh = useCallback(() => {
-    refetch();
-  }, [refetch]);
-
-  const renderHeader = useCallback(
-    () => (
+  const renderHeader = useCallback(() => {
+    return (
       <View>
         <StoryHeroHeader
           story={story}
@@ -71,47 +64,41 @@ export const StoryDetailScreen: React.FC<StoryDetailScreenProps> = ({
         />
         <ChaptersSectionHeader totalChapters={chapters.length} />
       </View>
-    ),
-    [story, chapters, handleSelectChapter]
-  );
+    );
+  }, [story, chapters, handleSelectChapter]);
 
   const renderItem = useCallback(
-    ({ item }: { item: ChapterSummary }) => (
-      <ChapterCard
-        chapter={item}
-        onPress={() => handleSelectChapter(item.chapterId, item.chapterNum)}
-      />
-    ),
+    ({ item }: { item: ChapterSummary }) => {
+      return (
+        <ChapterCard
+          chapter={item}
+          onPress={() => handleSelectChapter(item.chapterId, item.chapterNum)}
+        />
+      );
+    },
     [handleSelectChapter]
   );
 
   const renderFooter = useCallback(() => {
-    if (!isFetchingNextPage) return null;
-    return (
-      <View style={styles.footerLoader}>
-        <ActivityIndicator size="small" color={colors.primaryNeon} />
-      </View>
-    );
+    if (isFetchingNextPage) {
+      return (
+        <View style={styles.footerLoader}>
+          <ActivityIndicator size="small" color={colors.primaryNeon} />
+          <Text style={styles.footerLoaderText}>Loading more chapters...</Text>
+        </View>
+      );
+    }
+    return <View style={styles.footerSpacer} />;
   }, [isFetchingNextPage]);
-
-  const [isBookmarked, setIsBookmarked] = React.useState(false);
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="light-content" />
 
-      {/* Shared Unified Header */}
+      {/* Unified App Header */}
       <AppHeader
+        title={story?.title || 'Story Details'}
         onBack={handleBack}
-        rightAction={
-          <TouchableOpacity
-            style={styles.actionButton}
-            activeOpacity={0.7}
-            onPress={() => setIsBookmarked((prev) => !prev)}
-          >
-            <Text style={styles.actionIcon}>{isBookmarked ? '🔖' : '📑'}</Text>
-          </TouchableOpacity>
-        }
       />
 
       {isLoading ? (
@@ -121,9 +108,10 @@ export const StoryDetailScreen: React.FC<StoryDetailScreenProps> = ({
         </View>
       ) : isError ? (
         <View style={styles.centerContainer}>
-          <Text style={styles.errorTitle}>❌ Unable to load story</Text>
+          <AlertCircle size={32} color="#ff6b6b" style={{ marginBottom: 8 }} />
+          <Text style={styles.errorTitle}>Unable to load story</Text>
           <Text style={styles.errorMessage}>{error?.message}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={refetch}>
+          <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
             <Text style={styles.retryText}>Retry</Text>
           </TouchableOpacity>
         </View>
@@ -144,16 +132,11 @@ export const StoryDetailScreen: React.FC<StoryDetailScreenProps> = ({
           refreshControl={
             <RefreshControl
               refreshing={isRefetching}
-              onRefresh={handleRefresh}
+              onRefresh={refetch}
               tintColor={colors.primaryNeon}
-              colors={[colors.primaryNeon, colors.accentGold]}
             />
           }
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No chapters available</Text>
-            </View>
-          }
+          showsVerticalScrollIndicator={false}
         />
       )}
     </SafeAreaView>
@@ -165,22 +148,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#090D0B',
   },
-  actionButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#131B17',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  actionIcon: {
-    fontSize: 16,
-  },
   listContent: {
     paddingHorizontal: 16,
-    paddingBottom: 40,
+    paddingBottom: 32,
   },
   centerContainer: {
     flex: 1,
@@ -197,12 +167,12 @@ const styles = StyleSheet.create({
     color: '#ff6b6b',
     fontSize: 16,
     fontWeight: '700',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   errorMessage: {
     color: colors.textSecondaryDark,
+    fontSize: 12,
     textAlign: 'center',
-    fontSize: 13,
     marginBottom: 16,
   },
   retryButton: {
@@ -217,15 +187,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   footerLoader: {
-    paddingVertical: 16,
+    paddingVertical: 20,
     alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 8,
   },
-  emptyContainer: {
-    paddingVertical: 32,
-    alignItems: 'center',
-  },
-  emptyText: {
+  footerLoaderText: {
     color: colors.textSecondaryDark,
-    fontSize: 14,
+    fontSize: 12,
+  },
+  footerSpacer: {
+    height: 16,
   },
 });

@@ -1,5 +1,6 @@
 import React from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { Sparkles } from 'lucide-react-native';
 import { colors } from '../../../theme';
 
 export interface ListFooterProps {
@@ -25,7 +26,8 @@ export const ListFooter: React.FC<ListFooterProps> = ({
   if (!hasNextPage && totalCount > 0) {
     return (
       <View style={styles.endContainer}>
-        <Text style={styles.endText}>🎉 You've reached the end ({totalCount} stories)</Text>
+        <Sparkles size={14} color={colors.accentGold} />
+        <Text style={styles.endText}>You've reached the end ({totalCount} stories)</Text>
       </View>
     );
   }
@@ -47,7 +49,10 @@ const styles = StyleSheet.create({
   },
   endContainer: {
     paddingVertical: 20,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
   },
   endText: {
     fontSize: 12,

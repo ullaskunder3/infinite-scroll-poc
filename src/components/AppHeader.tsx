@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ChevronLeft } from 'lucide-react-native';
 
 export interface AppHeaderProps {
   title?: string;
@@ -21,7 +22,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           activeOpacity={0.7}
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
         >
-          <Text style={styles.backIcon}>‹</Text>
+          <ChevronLeft size={22} color="#FFFFFF" strokeWidth={2.5} />
         </TouchableOpacity>
       )}
 
@@ -54,13 +55,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
-  },
-  backIcon: {
-    color: '#FFFFFF',
-    fontSize: 26,
-    fontWeight: '300',
-    marginTop: -2,
-    lineHeight: 28,
   },
   title: {
     flex: 1,

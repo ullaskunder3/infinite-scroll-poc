@@ -1,5 +1,6 @@
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Eye, FileText } from 'lucide-react-native';
 import { ChapterSummary } from '../../../api';
 import { colors } from '../../../theme';
 
@@ -32,8 +33,14 @@ export const ChapterCard: React.FC<ChapterCardProps> = ({ chapter, onPress }) =>
         </Text>
 
         <View style={styles.metaRow}>
-          <Text style={styles.metaText}>📄 {chapter.pageCount} pages</Text>
-          <Text style={styles.metaText}>👁 {chapter.views}</Text>
+          <View style={styles.metaItem}>
+            <FileText size={12} color="#94A3B8" />
+            <Text style={styles.metaText}>{chapter.pageCount} pages</Text>
+          </View>
+          <View style={styles.metaItem}>
+            <Eye size={12} color="#94A3B8" />
+            <Text style={styles.metaText}>{chapter.views}</Text>
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -90,7 +97,12 @@ const styles = StyleSheet.create({
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   metaText: {
     fontSize: 11,

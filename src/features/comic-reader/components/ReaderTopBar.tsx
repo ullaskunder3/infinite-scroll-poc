@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BookOpen, ChevronLeft, FileText, Menu } from 'lucide-react-native';
 import { colors } from '../../../theme';
 
 export interface ReaderTopBarProps {
@@ -27,7 +28,7 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
         activeOpacity={0.7}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        <Text style={styles.backIcon}>‹</Text>
+        <ChevronLeft size={20} color="#FFFFFF" strokeWidth={2.5} />
       </TouchableOpacity>
 
       <Text style={styles.title} numberOfLines={1}>
@@ -40,13 +41,28 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
           onPress={onToggleBookView}
           activeOpacity={0.75}
         >
+          {isBookView ? (
+            <BookOpen
+              size={14}
+              color={colors.primaryNeon}
+              strokeWidth={2.2}
+              style={styles.btnIcon}
+            />
+          ) : (
+            <FileText
+              size={14}
+              color="#94A3B8"
+              strokeWidth={2.2}
+              style={styles.btnIcon}
+            />
+          )}
           <Text
             style={[
               styles.toggleBtnText,
               isBookView && styles.toggleBtnTextActive,
             ]}
           >
-            {isBookView ? '📖 Book View' : '📄 Single View'}
+            {isBookView ? 'Book View' : 'Single View'}
           </Text>
         </TouchableOpacity>
 
@@ -56,7 +72,7 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
             activeOpacity={0.75}
             onPress={onOpenDrawer}
           >
-            <Text style={styles.drawerIcon}>☰</Text>
+            <Menu size={18} color="#CBD5E1" strokeWidth={2.2} />
           </TouchableOpacity>
         )}
       </View>
@@ -84,18 +100,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  backIcon: {
-    color: '#FFFFFF',
-    fontSize: 24,
-    fontWeight: '300',
-    marginTop: -2,
-    lineHeight: 26,
-  },
-  drawerIcon: {
-    color: '#CBD5E1',
-    fontSize: 14,
-    fontWeight: '700',
-  },
   title: {
     flex: 1,
     fontSize: 15,
@@ -109,8 +113,10 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   toggleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingVertical: 6,
     borderRadius: 8,
     backgroundColor: '#131B17',
     borderWidth: 1,
@@ -119,6 +125,9 @@ const styles = StyleSheet.create({
   toggleBtnActive: {
     borderColor: colors.primaryNeon,
     backgroundColor: 'rgba(16, 185, 129, 0.15)',
+  },
+  btnIcon: {
+    marginRight: 5,
   },
   toggleBtnText: {
     color: '#94A3B8',

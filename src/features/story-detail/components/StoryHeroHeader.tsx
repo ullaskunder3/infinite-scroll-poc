@@ -1,5 +1,6 @@
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Eye } from 'lucide-react-native';
 import { ChapterSummary, StoryDetail } from '../../../api';
 import { colors } from '../../../theme';
 
@@ -40,7 +41,8 @@ export const StoryHeroHeader: React.FC<StoryHeroHeaderProps> = ({
             <Text style={styles.statusText}>{story.status}</Text>
           </View>
           <View style={styles.viewsBadge}>
-            <Text style={styles.viewsText}>👁 {story.views}</Text>
+            <Eye size={12} color="#FBBF24" />
+            <Text style={styles.viewsText}>{story.views}</Text>
           </View>
         </View>
 
@@ -152,6 +154,9 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.08)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   viewsText: {
     color: '#FBBF24',

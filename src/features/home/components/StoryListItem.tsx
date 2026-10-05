@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { BookOpen, Eye, Pencil, Tag } from 'lucide-react-native';
 import { StorySummary } from '../../../api';
 import { colors } from '../../../theme';
 
@@ -16,14 +17,30 @@ export const StoryListItem: React.FC<StoryListItemProps> = ({ story, index }) =>
         <Text style={styles.storyId}>ID: {story.storyId}</Text>
       </View>
       <Text style={styles.title}>{story.title}</Text>
-      <Text style={styles.meta}>
-        👁 {story.views} • 📚 {story.chapterCount} chapters
-      </Text>
+      
+      <View style={styles.metaRow}>
+        <View style={styles.metaItem}>
+          <Eye size={13} color={colors.textSecondaryDark} />
+          <Text style={styles.metaText}>{story.views}</Text>
+        </View>
+        <Text style={styles.metaDot}>•</Text>
+        <View style={styles.metaItem}>
+          <BookOpen size={13} color={colors.textSecondaryDark} />
+          <Text style={styles.metaText}>{story.chapterCount} chapters</Text>
+        </View>
+      </View>
+
       {story.tags.length > 0 && (
-        <Text style={styles.tags}>🏷 {story.tags.join(', ')}</Text>
+        <View style={styles.tagRow}>
+          <Tag size={12} color="#7bc5ae" />
+          <Text style={styles.tags}>{story.tags.join(', ')}</Text>
+        </View>
       )}
       {story.creators.length > 0 && (
-        <Text style={styles.creators}>✍️ {story.creators.join(', ')}</Text>
+        <View style={styles.creatorRow}>
+          <Pencil size={12} color={colors.textSecondaryDark} />
+          <Text style={styles.creators}>{story.creators.join(', ')}</Text>
+        </View>
       )}
     </View>
   );
@@ -57,19 +74,43 @@ const styles = StyleSheet.create({
     color: colors.textPrimaryDark,
     marginBottom: 6,
   },
-  meta: {
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 4,
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  metaDot: {
+    color: colors.textSecondaryDark,
+    fontSize: 11,
+  },
+  metaText: {
     fontSize: 13,
     color: colors.textSecondaryDark,
-    marginBottom: 3,
+  },
+  tagRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 2,
   },
   tags: {
     fontSize: 12,
     color: '#7bc5ae',
+  },
+  creatorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     marginTop: 2,
   },
   creators: {
     fontSize: 12,
     color: colors.textSecondaryDark,
-    marginTop: 2,
   },
 });

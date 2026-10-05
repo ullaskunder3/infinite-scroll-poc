@@ -6,11 +6,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { AlertCircle, Sparkles } from 'lucide-react-native';
 import { colors } from '../../../theme';
 
-// ==========================================
-// 1. Initial Full-Screen Loader
-// ==========================================
 export const HomeLoadingView: React.FC = () => (
   <View style={styles.centerContainer}>
     <ActivityIndicator size="large" color={colors.accentGold} />
@@ -18,9 +16,6 @@ export const HomeLoadingView: React.FC = () => (
   </View>
 );
 
-// ==========================================
-// 2. Full-Screen Error State with Retry
-// ==========================================
 export interface HomeErrorViewProps {
   message?: string;
   onRetry: () => void;
@@ -28,7 +23,8 @@ export interface HomeErrorViewProps {
 
 export const HomeErrorView: React.FC<HomeErrorViewProps> = ({ message, onRetry }) => (
   <View style={styles.centerContainer}>
-    <Text style={styles.errorTitle}>❌ Failed to Load Stories</Text>
+    <AlertCircle size={32} color="#ff6b6b" style={styles.errorIcon} />
+    <Text style={styles.errorTitle}>Failed to Load Stories</Text>
     <Text style={styles.errorMessage}>{message ?? 'An unexpected error occurred.'}</Text>
     <TouchableOpacity style={styles.retryButton} onPress={onRetry} activeOpacity={0.8}>
       <Text style={styles.retryButtonText}>Retry</Text>
@@ -36,9 +32,6 @@ export const HomeErrorView: React.FC<HomeErrorViewProps> = ({ message, onRetry }
   </View>
 );
 
-// ==========================================
-// 3. Empty State (e.g. no results for genre)
-// ==========================================
 export const HomeEmptyView: React.FC = () => (
   <View style={styles.emptyContainer}>
     <Text style={styles.emptyTitle}>No comics found</Text>
@@ -46,9 +39,6 @@ export const HomeEmptyView: React.FC = () => (
   </View>
 );
 
-// ==========================================
-// 4. Infinite Scroll Footer (Loader / End Note)
-// ==========================================
 export interface ListFooterProps {
   isFetchingNextPage: boolean;
   hasNextPage: boolean;
@@ -72,7 +62,8 @@ export const ListFooter: React.FC<ListFooterProps> = ({
   if (!hasNextPage && totalCount > 0) {
     return (
       <View style={styles.footerEnd}>
-        <Text style={styles.footerEndText}>🎉 You've reached the end ({totalCount} stories)</Text>
+        <Sparkles size={14} color={colors.accentGold} />
+        <Text style={styles.footerEndText}>You've reached the end ({totalCount} stories)</Text>
       </View>
     );
   }
@@ -91,6 +82,9 @@ const styles = StyleSheet.create({
     marginTop: 12,
     color: colors.textSecondaryDark,
     fontSize: 14,
+  },
+  errorIcon: {
+    marginBottom: 8,
   },
   errorTitle: {
     color: '#ff6b6b',
@@ -144,7 +138,10 @@ const styles = StyleSheet.create({
   },
   footerEnd: {
     paddingVertical: 20,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
   },
   footerEndText: {
     fontSize: 12,

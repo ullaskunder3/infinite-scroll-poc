@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Image,
   StyleSheet,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { BookOpen, Eye, Heart, Star, Tag } from 'lucide-react-native';
 import { StorySummary } from '../../../api';
 
 export interface StoryCardProps {
@@ -19,7 +20,6 @@ export const StoryCard: React.FC<StoryCardProps> = ({
   layout = 'grid',
   onPress,
 }) => {
-
   if (layout === 'list') {
     return (
       <TouchableOpacity
@@ -51,9 +51,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
                 onPress={() => { }}
                 style={styles.listHeartBtn}
               >
-                <Text style={{ fontSize: 13, color: '#FFFFFF' }}>
-                  {'🤍'}
-                </Text>
+                <Heart size={14} color="#CBD5E1" />
               </TouchableOpacity>
             </View>
 
@@ -62,8 +60,14 @@ export const StoryCard: React.FC<StoryCardProps> = ({
             </Text>
 
             <View style={styles.listMetaRow}>
-              <Text style={styles.metaText}>👁 {story.views}</Text>
-              <Text style={styles.tagBadgeText}>🏷 {story.tags?.[0] || 'Manga'}</Text>
+              <View style={styles.inlineMeta}>
+                <Eye size={12} color="#94A3B8" />
+                <Text style={styles.metaText}>{story.views}</Text>
+              </View>
+              <View style={styles.inlineTag}>
+                <Tag size={11} color="#34D399" />
+                <Text style={styles.tagBadgeText}>{story.tags?.[0] || 'Manga'}</Text>
+              </View>
             </View>
           </View>
 
@@ -75,7 +79,6 @@ export const StoryCard: React.FC<StoryCardProps> = ({
     );
   }
 
-  // Modern Poster-Style Grid Card
   return (
     <TouchableOpacity
       activeOpacity={0.88}
@@ -92,7 +95,8 @@ export const StoryCard: React.FC<StoryCardProps> = ({
       {/* Top Floating Bar */}
       <View style={styles.topFloatingBar}>
         <View style={styles.chapterBadgePill}>
-          <Text style={styles.chapterBadgePillText}>📖 {story.chapterCount} CH</Text>
+          <BookOpen size={11} color="#34D399" />
+          <Text style={styles.chapterBadgePillText}>{story.chapterCount} CH</Text>
         </View>
 
         <TouchableOpacity
@@ -100,9 +104,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
           onPress={() => { }}
           style={styles.glassHeartButton}
         >
-          <Text style={{ fontSize: 12, color: '#FFFFFF' }}>
-            {'🤍'}
-          </Text>
+          <Heart size={13} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
 
@@ -119,12 +121,18 @@ export const StoryCard: React.FC<StoryCardProps> = ({
           </Text>
 
           <View style={styles.posterMetaRow}>
-            <Text style={styles.metaItemText} numberOfLines={1}>
-              🏷 {story.tags?.[1] || story.tags?.[0] || 'Webtoon'}
-            </Text>
-            <Text style={styles.metaItemTextGold}>
-              ★ {story.views}
-            </Text>
+            <View style={styles.inlineTag}>
+              <Tag size={11} color="#94A3B8" />
+              <Text style={styles.metaItemText} numberOfLines={1}>
+                {story.tags?.[1] || story.tags?.[0] || 'Webtoon'}
+              </Text>
+            </View>
+            <View style={styles.inlineMeta}>
+              <Star size={11} color="#FBBF24" fill="#FBBF24" />
+              <Text style={styles.metaItemTextGold}>
+                {story.views}
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -139,25 +147,22 @@ export const StoryCard: React.FC<StoryCardProps> = ({
 const styles = StyleSheet.create({
   // ================= GRID CARD STYLES =================
   gridCard: {
-    flex: 1,
-    height: 320,
-    backgroundColor: '#0E1612',
+    width: 172,
+    height: 258,
     borderRadius: 22,
+    backgroundColor: '#131B17',
+    position: 'relative',
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    position: 'relative',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 6,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   gridPosterImage: {
-    ...StyleSheet.absoluteFill,
     width: '100%',
     height: '100%',
-    backgroundColor: '#0E1612',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    backgroundColor: '#090D0B',
   },
   topFloatingBar: {
     position: 'absolute',
@@ -175,20 +180,24 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.22)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   chapterBadgePillText: {
-    color: '#FFFFFF',
+    color: '#E2E8F0',
     fontSize: 10,
     fontWeight: '800',
+    letterSpacing: 0.3,
   },
   glassHeartButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(9, 13, 11, 0.75)',
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(9, 13, 11, 0.65)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -197,102 +206,113 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 156,
-    backgroundColor: 'rgba(9, 13, 11, 0.88)',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingHorizontal: 12,
-    paddingTop: 12,
-    paddingBottom: 12,
+    backgroundColor: 'rgba(9, 13, 11, 0.90)',
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+    padding: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.12)',
+    flexDirection: 'column',
     justifyContent: 'space-between',
+    minHeight: 104,
   },
   textStack: {
     flex: 1,
-    justifyContent: 'flex-start',
   },
   titleWrapper: {
-    height: 36,
-    justifyContent: 'center',
+    height: 32,
+    justifyContent: 'flex-start',
     marginBottom: 2,
   },
   posterTitle: {
-    fontSize: 14,
-    fontWeight: '800',
     color: '#FFFFFF',
-    lineHeight: 18,
+    fontSize: 12,
+    fontWeight: '800',
+    lineHeight: 15,
   },
   posterSubtitle: {
-    fontSize: 11,
-    fontWeight: '500',
     color: '#94A3B8',
-    marginBottom: 6,
+    fontSize: 10,
+    fontWeight: '500',
+    marginBottom: 4,
   },
   posterMetaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginBottom: 6,
   },
   metaItemText: {
-    fontSize: 11,
     color: '#CBD5E1',
+    fontSize: 10,
     fontWeight: '600',
+    flex: 1,
+    marginRight: 4,
   },
   metaItemTextGold: {
-    fontSize: 11,
     color: '#FBBF24',
+    fontSize: 10,
     fontWeight: '700',
   },
+  inlineTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  inlineMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
   actionPill: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingVertical: 7,
+    backgroundColor: '#10B981',
+    borderRadius: 14,
+    paddingVertical: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 6,
   },
   actionPillText: {
-    color: '#090D0B',
-    fontSize: 12,
+    color: '#FFFFFF',
+    fontSize: 10,
     fontWeight: '800',
+    letterSpacing: 0.2,
   },
 
   // ================= LIST CARD STYLES =================
   listCard: {
-    width: '100%',
     flexDirection: 'row',
     backgroundColor: '#131B17',
-    borderRadius: 20,
+    borderRadius: 18,
     padding: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+    marginBottom: 12,
   },
   listImageContainer: {
-    width: 100,
-    height: 140,
-    borderRadius: 16,
+    width: 82,
+    height: 106,
+    borderRadius: 14,
     overflow: 'hidden',
     position: 'relative',
-    backgroundColor: '#0E1612',
   },
   listThumbnail: {
     width: '100%',
     height: '100%',
+    backgroundColor: '#090D0B',
   },
   listGlassBadge: {
     position: 'absolute',
-    bottom: 6,
-    left: 6,
-    backgroundColor: 'rgba(9, 13, 11, 0.8)',
+    bottom: 5,
+    left: 5,
+    backgroundColor: 'rgba(9, 13, 11, 0.75)',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   listGlassBadgeText: {
     color: '#FFFFFF',
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   listContent: {
     flex: 1,
@@ -302,59 +322,56 @@ const styles = StyleSheet.create({
   },
   listTopRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    alignItems: 'center',
+    marginBottom: 2,
   },
   listSubtitle: {
-    fontSize: 11,
-    color: '#8CAE9A',
+    color: '#94A3B8',
+    fontSize: 10,
     fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
     flex: 1,
   },
   listHeartBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: 'rgba(9, 13, 11, 0.7)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 2,
   },
   listTitle: {
-    fontSize: 15,
-    fontWeight: '800',
     color: '#FFFFFF',
-    lineHeight: 19,
-    marginBottom: 4,
+    fontSize: 14,
+    fontWeight: '700',
+    lineHeight: 18,
+    marginBottom: 6,
   },
   listMetaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 8,
   },
   metaText: {
+    color: '#94A3B8',
     fontSize: 11,
-    color: '#FBBF24',
-    fontWeight: '600',
+    fontWeight: '500',
   },
   tagBadgeText: {
+    color: '#34D399',
     fontSize: 11,
-    color: '#94A3B8',
     fontWeight: '600',
   },
   actionPillList: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    paddingVertical: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(52, 211, 153, 0.12)',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(52, 211, 153, 0.25)',
     marginTop: 6,
   },
   actionPillListText: {
-    color: '#090D0B',
-    fontSize: 12,
-    fontWeight: '800',
+    color: '#34D399',
+    fontSize: 10,
+    fontWeight: '700',
   },
 });
