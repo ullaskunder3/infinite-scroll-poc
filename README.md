@@ -76,3 +76,11 @@ have added svg animation loader.svg use that for commic reader
   or skeleton
 
   VirtualizedList: You have a large list that is slow to update - make sure your renderItem function renders components that follow React performance best practices like PureComponent, shouldComponentUpdate, etc. {dt: 606, prevDt: 694, contentLength: 5696}
+
+### Physical & Virtual Device API Setup
+- **Issue:** Virtual emulator uses `10.0.2.2`, but physical device over USB cannot reach it.
+- **Fix:** Set API URL to `http://localhost:3001` and forward port 3001 to both devices using ADB:
+  ```bash
+  adb reverse tcp:3001 tcp:3001
+  ```
+- **Result:** Both physical USB phone and virtual emulator connect directly to the local backend without Wi-Fi IP issues.
