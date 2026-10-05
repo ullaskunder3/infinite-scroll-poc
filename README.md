@@ -89,3 +89,27 @@ have added svg animation loader.svg use that for commic reader
 I noticed that when I scroll fast in Reader, a loader appears. Is this due to API latency or our implementation?
 
 Webtoon feels seamless even with fast scrolling. Can we check how they handle it and see if we can make our scrolling experience smoother?
+
+----
+i was just checking rotated view for book view
+  kind of overflwoing to next page and does not look like how
+  pages are connected pivite of left page right edge and right
+  page left edge what is the reason ?
+
+    Root cause explained:
+    useWindowDimensions().width = 844px   ← full screen (notch
+  included)
+    SafeAreaView (left + right edges)     ← cuts ~22px each
+  side for notch
+    FlatList actual rendered width = 800px ← what pagingEnabled
+  snaps to
+    
+    Each BookViewItem was rendered at 844px wide
+    but the FlatList paged every 800px
+    → 44px bleed-through from the next spread visible on screen
+  What was fixed:
+
+  Instead of trusting screenWidth prop (which comes from
+  useWindowDimensions() and includes notch insets),
+  BookPageView now uses onLayout on the FlatList itself to
+  measure its actual rendered width in pixels.

@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
+  LayoutChangeEvent,
   NativeScrollEvent,
   NativeSyntheticEvent,
   StyleSheet,
@@ -27,7 +28,15 @@ export const BookPageView: React.FC<BookPageViewProps> = ({
   onTap,
 }) => {
   const zoomScale = useReaderStore((s) => s.zoomScale);
-  const renderWidth = Math.round(screenWidth * zoomScale);
+
+  // Measure actual rendered width (excludes safe area insets) to avoid overflow/bleed
+  const [actualWidth, setActualWidth] = useState(screenWidth);
+  const onLayout = useCallback((e: LayoutChangeEvent) => {
+    const w = e.nativeEvent.layout.width;
+    if (w > 0) setActualWidth(w);
+  }, []);
+
+  const renderWidth = Math.round(actualWidth * zoomScale);
   const renderHeight = Math.round(screenHeight * zoomScale);
   const flatListRef = useRef<FlatList<BookPair>>(null);
   const currentIndexRef = useRef(0);
@@ -93,6 +102,7 @@ export const BookPageView: React.FC<BookPageViewProps> = ({
   return (
     <FlatList<BookPair>
       ref={flatListRef}
+      onLayout={onLayout}
       data={bookPairs}
       key={`book-page-flatlist-${renderWidth}`}
       horizontal
