@@ -113,3 +113,5 @@ i was just checking rotated view for book view
   useWindowDimensions() and includes notch insets),
   BookPageView now uses onLayout on the FlatList itself to
   measure its actual rendered width in pixels.
+  ---
+  

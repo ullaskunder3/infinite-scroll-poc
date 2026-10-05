@@ -12,7 +12,6 @@ import { ComicPage } from '../../../api';
 import { colors } from '../../../theme';
 import { useReaderStore } from '../store';
 import { BookPair, BookViewItem } from './BookViewItem';
-import { prefetchPages } from '../utils/imageCache';
 
 export interface BookPageViewProps {
   pages: ComicPage[];
@@ -33,7 +32,6 @@ export const BookPageView: React.FC<BookPageViewProps> = ({
 }) => {
   const zoomScale = useReaderStore((s) => s.zoomScale);
 
-  // Measure actual rendered width (excludes safe area insets) to avoid overflow/bleed
   const [actualWidth, setActualWidth] = useState(screenWidth);
   const onLayout = useCallback((e: LayoutChangeEvent) => {
     const w = e.nativeEvent.layout.width;
@@ -45,12 +43,6 @@ export const BookPageView: React.FC<BookPageViewProps> = ({
   const flatListRef = useRef<FlatList<BookPair>>(null);
   const currentIndexRef = useRef(0);
 
-  // Background-prefetch pages
-  useEffect(() => {
-    prefetchPages(pages);
-  }, [pages]);
-
-  // Pair pages for 2-page horizontal spread (Page 1 cover alone, then 2-3, 4-5...)
   const bookPairs: BookPair[] = useMemo(() => {
     if (pages.length === 0) return [];
     const pairs: BookPair[] = [
@@ -79,7 +71,6 @@ export const BookPageView: React.FC<BookPageViewProps> = ({
     return pairs;
   }, [pages]);
 
-  // Scroll to spread containing initialPage on open
   const hasScrolledRef = useRef(false);
 
   useEffect(() => {
@@ -95,15 +86,39 @@ export const BookPageView: React.FC<BookPageViewProps> = ({
             index: targetPairIndex,
             animated: false,
           });
-        }, 60);
+        }, 100);
       }
     }
   }, [initialPage, bookPairs]);
 
+  // Snap back to the current active index when zoom resets to prevent left-shift
+  useEffect(() => {
+    if (zoomScale <= 1.0 && bookPairs.length > 0) {
+      flatListRef.current?.scrollToIndex({
+        index: currentIndexRef.current,
+        animated: false,
+      });
+    }
+  }, [zoomScale, bookPairs.length]);
+
+  const updateActivePage = useCallback(
+    (index: number) => {
+      if (index >= 0 && index < bookPairs.length) {
+        currentIndexRef.current = index;
+        if (onPageChange) {
+          const pair = bookPairs[index];
+          const firstPageNum = pages[pair.pageIndices[0]]?.pageNum ?? 1;
+          onPageChange(firstPageNum);
+        }
+      }
+    },
+    [bookPairs, pages, onPageChange]
+  );
+
   const goToPrev = () => {
     if (currentIndexRef.current > 0) {
       const nextIndex = currentIndexRef.current - 1;
-      currentIndexRef.current = nextIndex;
+      updateActivePage(nextIndex);
       flatListRef.current?.scrollToIndex({ index: nextIndex, animated: true });
     }
   };
@@ -111,23 +126,23 @@ export const BookPageView: React.FC<BookPageViewProps> = ({
   const goToNext = () => {
     if (currentIndexRef.current < bookPairs.length - 1) {
       const nextIndex = currentIndexRef.current + 1;
-      currentIndexRef.current = nextIndex;
+      updateActivePage(nextIndex);
       flatListRef.current?.scrollToIndex({ index: nextIndex, animated: true });
+    }
+  };
+
+  const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const offsetX = e.nativeEvent.contentOffset.x;
+    const index = Math.round(offsetX / renderWidth);
+    if (index !== currentIndexRef.current) {
+      updateActivePage(index);
     }
   };
 
   const handleScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetX = e.nativeEvent.contentOffset.x;
     const index = Math.round(offsetX / renderWidth);
-    if (index >= 0 && index < bookPairs.length) {
-      currentIndexRef.current = index;
-      // Report the first page of the visible spread
-      if (onPageChange) {
-        const pair = bookPairs[index];
-        const firstPageNum = pages[pair.pageIndices[0]]?.pageNum ?? 1;
-        onPageChange(firstPageNum);
-      }
-    }
+    updateActivePage(index);
   };
 
   return (
@@ -135,15 +150,18 @@ export const BookPageView: React.FC<BookPageViewProps> = ({
       ref={flatListRef}
       onLayout={onLayout}
       data={bookPairs}
-      key={`book-page-flatlist-${renderWidth}`}
+      key="book-page-flatlist"
+      extraData={renderWidth}
       horizontal
       pagingEnabled
       showsHorizontalScrollIndicator={false}
       initialNumToRender={2}
       maxToRenderPerBatch={2}
       windowSize={5}
-      removeClippedSubviews
+      removeClippedSubviews={false}
       keyExtractor={(item) => item.id}
+      onScroll={handleScroll}
+      scrollEventThrottle={32}
       onMomentumScrollEnd={handleScrollEnd}
       onScrollToIndexFailed={(info) => {
         setTimeout(() => {
@@ -151,7 +169,7 @@ export const BookPageView: React.FC<BookPageViewProps> = ({
             index: info.index,
             animated: false,
           });
-        }, 80);
+        }, 150);
       }}
       renderItem={({ item }) => (
         <BookViewItem
@@ -163,11 +181,6 @@ export const BookPageView: React.FC<BookPageViewProps> = ({
           onNext={goToNext}
         />
       )}
-      getItemLayout={(_, index) => ({
-        length: renderWidth,
-        offset: renderWidth * index,
-        index,
-      })}
       ListEmptyComponent={
         <View style={styles.centerContainer}>
           <Text style={styles.statusText}>No pages found</Text>

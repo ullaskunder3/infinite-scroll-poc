@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   FlatList,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,7 +13,6 @@ import { ComicPage } from '../../../api';
 import { colors } from '../../../theme';
 import { useReaderStore } from '../store';
 import { ComicPageItem } from './ComicPageItem';
-import { prefetchPages } from '../utils/imageCache';
 
 export interface SinglePageViewProps {
   pages: ComicPage[];
@@ -31,13 +32,16 @@ export const SinglePageView: React.FC<SinglePageViewProps> = ({
   const zoomScale = useReaderStore((s) => s.zoomScale);
   const renderWidth = Math.round(screenWidth * zoomScale);
   const flatListRef = useRef<FlatList<ComicPage>>(null);
+  const scrollViewRef = useRef<any>(null);
 
-  // Background-prefetch pages immediately so fast scrolling finds cached images
+  // Snap back to 0 when zoomed out to prevent black void
   useEffect(() => {
-    prefetchPages(pages);
-  }, [pages]);
+    if (zoomScale <= 1.0) {
+      scrollViewRef.current?.scrollTo({ x: 0, y: 0, animated: false });
+    }
+  }, [zoomScale]);
 
-  // Precompute proportional page heights & cumulative offsets for O(1) getItemLayout
+  // Proportional height calculations
   const pageHeights = useMemo(() => {
     return pages.map((p) => {
       const [w, h] = p.resolution;
@@ -53,7 +57,6 @@ export const SinglePageView: React.FC<SinglePageViewProps> = ({
     return offsets;
   }, [pageHeights]);
 
-  // Scroll to initialPage on open
   const initialIndex =
     initialPage && initialPage > 1 && pages.length >= initialPage
       ? initialPage - 1
@@ -69,76 +72,78 @@ export const SinglePageView: React.FC<SinglePageViewProps> = ({
           index: initialIndex,
           animated: false,
         });
-      }, 60);
+      }, 100);
     }
   }, [initialIndex, pages.length]);
 
-  const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 40 }).current;
+  const lastReportedPageRef = useRef<number>(initialPage || 1);
 
-  const onViewableItemsChanged = useCallback(
-    ({ viewableItems }: { viewableItems: Array<{ item: ComicPage }> }) => {
-      if (viewableItems.length > 0 && onPageChange) {
-        const topItem = viewableItems[0].item;
-        onPageChange(topItem.pageNum);
+  const handleScroll = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      if (!onPageChange || pageOffsets.length === 0 || pages.length === 0) return;
+      const offsetY = e.nativeEvent.contentOffset.y;
+
+      let activeIndex = 0;
+      for (let i = pageOffsets.length - 1; i >= 0; i--) {
+        if (offsetY >= pageOffsets[i] - 50) {
+          activeIndex = i;
+          break;
+        }
+      }
+
+      const activePageNum = pages[activeIndex]?.pageNum;
+      if (activePageNum && activePageNum !== lastReportedPageRef.current) {
+        lastReportedPageRef.current = activePageNum;
+        onPageChange(activePageNum);
       }
     },
-    [onPageChange]
+    [pageOffsets, pages, onPageChange]
   );
 
-  const listContent = (
-    <FlatList<ComicPage>
-      ref={flatListRef}
-      data={pages}
-      key={`single-view-flatlist-${renderWidth}`}
-      keyExtractor={(item) => `single-page-${item.pageNum}`}
-      initialScrollIndex={initialIndex}
-      onScrollToIndexFailed={(info) => {
-        setTimeout(() => {
-          flatListRef.current?.scrollToIndex({
-            index: info.index,
-            animated: false,
-          });
-        }, 80);
-      }}
-      initialNumToRender={4}
-      maxToRenderPerBatch={4}
-      windowSize={9}
-      removeClippedSubviews
-      viewabilityConfig={viewabilityConfig}
-      onViewableItemsChanged={onViewableItemsChanged}
-      getItemLayout={(_, index) => ({
-        length: pageHeights[index] || renderWidth * 1.4,
-        offset: pageOffsets[index] || 0,
-        index,
-      })}
-      renderItem={({ item }) => (
-        <TouchableOpacity activeOpacity={1} onPress={onTap}>
-          <ComicPageItem page={item} width={renderWidth} />
-        </TouchableOpacity>
-      )}
-      showsVerticalScrollIndicator={false}
-      ListEmptyComponent={
-        <View style={styles.centerContainer}>
-          <Text style={styles.statusText}>No pages found</Text>
-        </View>
-      }
-    />
+  return (
+    <ScrollView
+      ref={scrollViewRef}
+      horizontal
+      scrollEnabled={zoomScale > 1.0}
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={{ width: renderWidth }}
+      bounces={false}
+    >
+      <FlatList<ComicPage>
+        ref={flatListRef}
+        data={pages}
+        key="single-view-flatlist"
+        extraData={renderWidth}
+        keyExtractor={(item) => `single-page-${item.pageNum}`}
+        initialScrollIndex={initialIndex}
+        onScrollToIndexFailed={(info) => {
+          setTimeout(() => {
+            flatListRef.current?.scrollToIndex({
+              index: info.index,
+              animated: false,
+            });
+          }, 150);
+        }}
+        initialNumToRender={4}
+        maxToRenderPerBatch={4}
+        windowSize={11}
+        removeClippedSubviews={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={50}
+        renderItem={({ item }) => (
+          <TouchableOpacity activeOpacity={1} onPress={onTap}>
+            <ComicPageItem page={item} width={renderWidth} />
+          </TouchableOpacity>
+        )}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <View style={styles.centerContainer}>
+            <Text style={styles.statusText}>No pages found</Text>
+          </View>
+        }
+      />
+    </ScrollView>
   );
-
-  if (zoomScale > 1.0) {
-    return (
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ width: renderWidth }}
-        bounces={false}
-      >
-        {listContent}
-      </ScrollView>
-    );
-  }
-
-  return listContent;
 };
 
 const styles = StyleSheet.create({
