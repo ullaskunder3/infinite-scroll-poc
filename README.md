@@ -84,3 +84,8 @@ have added svg animation loader.svg use that for commic reader
   adb reverse tcp:3001 tcp:3001
   ```
 - **Result:** Both physical USB phone and virtual emulator connect directly to the local backend without Wi-Fi IP issues.
+---
+
+I noticed that when I scroll fast in Reader, a loader appears. Is this due to API latency or our implementation?
+
+Webtoon feels seamless even with fast scrolling. Can we check how they handle it and see if we can make our scrolling experience smoother?

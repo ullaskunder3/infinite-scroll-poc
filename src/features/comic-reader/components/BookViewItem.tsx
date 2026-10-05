@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Image,
   StyleSheet,
@@ -6,6 +6,7 @@ import {
   View,
 } from 'react-native';
 import { ComicPage } from '../../../api';
+import { isPageImageCached, markPageImageCached } from '../utils/imageCache';
 import { PageLoader } from './PageLoader';
 
 export interface BookPair {
@@ -19,6 +20,8 @@ export interface BookViewItemProps {
   screenWidth: number;
   screenHeight: number;
   onTap: () => void;
+  onPrev?: () => void;
+  onNext?: () => void;
 }
 
 const BookSinglePage: React.FC<{
@@ -27,7 +30,18 @@ const BookSinglePage: React.FC<{
   pageWidth: number;
   screenHeight: number;
 }> = ({ page, pageIndex, pageWidth, screenHeight }) => {
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(() => isPageImageCached(page.pageUrl));
+
+  useEffect(() => {
+    if (isPageImageCached(page.pageUrl)) {
+      setIsLoaded(true);
+    }
+  }, [page.pageUrl]);
+
+  const handleLoadSuccess = () => {
+    markPageImageCached(page.pageUrl);
+    setIsLoaded(true);
+  };
 
   return (
     <View style={[styles.pageWrapper, { width: pageWidth, height: screenHeight }]}>
@@ -36,7 +50,7 @@ const BookSinglePage: React.FC<{
         source={{ uri: page.pageUrl }}
         style={[styles.image, { opacity: isLoaded ? 1 : 0 }]}
         resizeMode="contain"
-        onLoadEnd={() => setIsLoaded(true)}
+        onLoadEnd={handleLoadSuccess}
       />
     </View>
   );
@@ -47,14 +61,27 @@ export const BookViewItem: React.FC<BookViewItemProps> = ({
   screenWidth,
   screenHeight,
   onTap,
+  onPrev,
+  onNext,
 }) => {
   const isSingle = pair.pages.length === 1;
   const pageWidth = isSingle ? screenWidth : screenWidth / 2;
 
+  const handlePress = (e: any) => {
+    const x = e.nativeEvent?.locationX ?? screenWidth / 2;
+    if (x < screenWidth * 0.2 && onPrev) {
+      onPrev();
+    } else if (x > screenWidth * 0.8 && onNext) {
+      onNext();
+    } else {
+      onTap();
+    }
+  };
+
   return (
     <TouchableOpacity
       activeOpacity={1}
-      onPress={onTap}
+      onPress={handlePress}
       style={[styles.container, { width: screenWidth, height: screenHeight }]}
     >
       <View style={styles.pairRow}>

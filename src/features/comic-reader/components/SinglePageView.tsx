@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   FlatList,
   ScrollView,
@@ -11,6 +11,7 @@ import { ComicPage } from '../../../api';
 import { colors } from '../../../theme';
 import { useReaderStore } from '../store';
 import { ComicPageItem } from './ComicPageItem';
+import { prefetchPages } from '../utils/imageCache';
 
 export interface SinglePageViewProps {
   pages: ComicPage[];
@@ -25,6 +26,11 @@ export const SinglePageView: React.FC<SinglePageViewProps> = ({
 }) => {
   const zoomScale = useReaderStore((s) => s.zoomScale);
   const renderWidth = Math.round(screenWidth * zoomScale);
+
+  // Background-prefetch pages immediately so fast scrolling finds cached images
+  useEffect(() => {
+    prefetchPages(pages);
+  }, [pages]);
 
   // Precompute proportional page heights & cumulative offsets for O(1) getItemLayout
   const pageHeights = useMemo(() => {
@@ -47,9 +53,9 @@ export const SinglePageView: React.FC<SinglePageViewProps> = ({
       data={pages}
       key={`single-view-flatlist-${renderWidth}`}
       keyExtractor={(item) => `single-page-${item.pageNum}`}
-      initialNumToRender={2}
-      maxToRenderPerBatch={2}
-      windowSize={5}
+      initialNumToRender={4}
+      maxToRenderPerBatch={4}
+      windowSize={9}
       removeClippedSubviews
       getItemLayout={(_, index) => ({
         length: pageHeights[index] || renderWidth * 1.4,

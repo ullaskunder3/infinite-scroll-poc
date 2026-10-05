@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppStore } from '../../core/store';
@@ -19,6 +19,7 @@ export const ComicReaderScreen: React.FC<ComicReaderScreenProps> = ({
   onBack: propOnBack,
 }) => {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const isLandscape = screenWidth > screenHeight;
 
   const storeStoryId = useAppStore((s) => s.selectedStoryId);
   const storeChapterId = useAppStore((s) => s.selectedChapterId);
@@ -29,9 +30,14 @@ export const ComicReaderScreen: React.FC<ComicReaderScreenProps> = ({
   const activeChapterId = propChapterId || storeChapterId || '';
   const handleBack = propOnBack || closeChapter;
 
-  const [isBookView, setIsBookView] = useState(false);
+  const [isBookView, setIsBookView] = useState(isLandscape);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showControls, setShowControls] = useState(true);
+
+  // Auto-switch to double-page spread on rotation to landscape, and single page in portrait
+  useEffect(() => {
+    setIsBookView(isLandscape);
+  }, [isLandscape]);
 
   const toggleBookView = () => setIsBookView((prev) => !prev);
   const toggleControls = () => setShowControls((prev) => !prev);
