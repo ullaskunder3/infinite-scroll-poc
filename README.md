@@ -55,3 +55,8 @@ using cursor-based pagination:
 hyy make chapter list page collapsable to chapters so from
   reader if user have that list icon of back icon it can show
   colapsed list of chapter page ?
+
+lets optimize the comic reader page currently its rendering all page at once BAD 
+so lets do this initial page to render 2 to 3 only load visible first 
+windows size 5 keeps only 2 viewport ahead behind in memory 
+skeleton placeholder smooth loading react-native-skeleton-loading

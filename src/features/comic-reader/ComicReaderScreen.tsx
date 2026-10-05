@@ -1,7 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
-  FlatList,
   StatusBar,
   StyleSheet,
   Text,
@@ -10,15 +9,13 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ComicPage } from '../../api';
 import { useAppStore } from '../../core/store';
 import { colors } from '../../theme';
 import {
-  BookPair,
-  BookViewItem,
+  BookPageView,
   ChapterDrawerModal,
-  ComicPageItem,
   ReaderTopBar,
+  SinglePageView,
 } from './components';
 import { useChapterPages, useStoryChapters } from './hooks';
 
@@ -54,33 +51,6 @@ export const ComicReaderScreen: React.FC<ComicReaderScreenProps> = ({
   const { chapters } = useStoryChapters(storeStoryId);
   const currentNum = chapterNum ?? storeChapterNum ?? 1;
 
-  // Book View Pairing
-  const bookPairs: BookPair[] = useMemo(() => {
-    if (pages.length === 0) return [];
-    const pairs: BookPair[] = [{
-      id: 'book-pair-0',
-      pages: [pages[0]],
-      pageIndices: [0],
-    }];
-
-    for (let i = 1; i < pages.length; i += 2) {
-      if (i + 1 < pages.length) {
-        pairs.push({
-          id: `book-pair-${i}-${i + 1}`,
-          pages: [pages[i], pages[i + 1]],
-          pageIndices: [i, i + 1],
-        });
-      } else {
-        pairs.push({
-          id: `book-pair-${i}`,
-          pages: [pages[i]],
-          pageIndices: [i],
-        });
-      }
-    }
-    return pairs;
-  }, [pages]);
-
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="light-content" hidden={!showControls} />
@@ -111,45 +81,17 @@ export const ComicReaderScreen: React.FC<ComicReaderScreenProps> = ({
           </TouchableOpacity>
         </View>
       ) : isBookView ? (
-        /* ================= BOOK VIEW ================= */
-        <FlatList<BookPair>
-          data={bookPairs}
-          key="book-view-flatlist"
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <BookViewItem
-              pair={item}
-              screenWidth={screenWidth}
-              screenHeight={screenHeight}
-              onTap={toggleControls}
-            />
-          )}
-          getItemLayout={(_, index) => ({
-            length: screenWidth,
-            offset: screenWidth * index,
-            index,
-          })}
+        <BookPageView
+          pages={pages}
+          screenWidth={screenWidth}
+          screenHeight={screenHeight}
+          onTap={toggleControls}
         />
       ) : (
-        /* ================= SINGLE VIEW ================= */
-        <FlatList<ComicPage>
-          data={pages}
-          key="single-view-flatlist"
-          keyExtractor={(item) => `page-${item.pageNum}`}
-          renderItem={({ item }) => (
-            <TouchableOpacity activeOpacity={1} onPress={toggleControls}>
-              <ComicPageItem page={item} width={screenWidth} />
-            </TouchableOpacity>
-          )}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={
-            <View style={styles.centerContainer}>
-              <Text style={styles.statusText}>No pages found</Text>
-            </View>
-          }
+        <SinglePageView
+          pages={pages}
+          screenWidth={screenWidth}
+          onTap={toggleControls}
         />
       )}
 

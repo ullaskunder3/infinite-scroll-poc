@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Image,
   StyleSheet,
@@ -7,6 +7,7 @@ import {
   View,
 } from 'react-native';
 import { ComicPage } from '../../../api';
+import { DynamicSkeleton } from '../../../components';
 
 export interface BookPair {
   id: string;
@@ -20,6 +21,34 @@ export interface BookViewItemProps {
   screenHeight: number;
   onTap: () => void;
 }
+
+const BookSinglePage: React.FC<{
+  page: ComicPage;
+  pageIndex: number;
+  pageWidth: number;
+  screenHeight: number;
+}> = ({ page, pageIndex, pageWidth, screenHeight }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  return (
+    <View style={[styles.pageWrapper, { width: pageWidth, height: screenHeight }]}>
+      {!isLoaded && (
+        <View style={StyleSheet.absoluteFill}>
+          <DynamicSkeleton width={pageWidth} height={screenHeight} />
+        </View>
+      )}
+      <Image
+        source={{ uri: page.pageUrl }}
+        style={[styles.image, { opacity: isLoaded ? 1 : 0 }]}
+        resizeMode="contain"
+        onLoadEnd={() => setIsLoaded(true)}
+      />
+      <View style={styles.pageBadge}>
+        <Text style={styles.pageBadgeText}>{pageIndex + 1}</Text>
+      </View>
+    </View>
+  );
+};
 
 export const BookViewItem: React.FC<BookViewItemProps> = ({
   pair,
@@ -38,19 +67,13 @@ export const BookViewItem: React.FC<BookViewItemProps> = ({
     >
       <View style={styles.pairRow}>
         {pair.pages.map((page, idx) => (
-          <View
+          <BookSinglePage
             key={`book-${pair.id}-p-${page.pageNum}-${idx}`}
-            style={[styles.pageWrapper, { width: pageWidth, height: screenHeight }]}
-          >
-            <Image
-              source={{ uri: page.pageUrl }}
-              style={styles.image}
-              resizeMode="contain"
-            />
-            <View style={styles.pageBadge}>
-              <Text style={styles.pageBadgeText}>{pair.pageIndices[idx] + 1}</Text>
-            </View>
-          </View>
+            page={page}
+            pageIndex={pair.pageIndices[idx]}
+            pageWidth={pageWidth}
+            screenHeight={screenHeight}
+          />
         ))}
       </View>
     </TouchableOpacity>
