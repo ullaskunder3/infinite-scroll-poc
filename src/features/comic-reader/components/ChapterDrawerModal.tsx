@@ -41,7 +41,6 @@ export const ChapterDrawerModal: React.FC<ChapterDrawerModalProps> = ({
         />
 
         <View style={styles.sheetContainer}>
-          {/* Header */}
           <View style={styles.sheetHeader}>
             <View style={styles.dragHandle} />
             <View style={styles.headerRow}>
@@ -52,7 +51,6 @@ export const ChapterDrawerModal: React.FC<ChapterDrawerModalProps> = ({
             </View>
           </View>
 
-          {/* Chapters List */}
           <FlatList
             data={chapters}
             keyExtractor={(item) => item.chapterId}
@@ -113,7 +111,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   backdrop: {
-    ...StyleSheet.absoluteFillObject,
+    ...(StyleSheet.absoluteFill as object),
   },
   sheetContainer: {
     height: '65%',

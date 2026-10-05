@@ -1,16 +1,21 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { colors } from '../../../theme';
 
 export interface ReaderTopBarProps {
   title: string;
+  isBookView: boolean;
   onBack: () => void;
+  onToggleBookView: () => void;
   onOpenDrawer?: () => void;
   hasChapters?: boolean;
 }
 
 export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
   title,
+  isBookView,
   onBack,
+  onToggleBookView,
   onOpenDrawer,
   hasChapters,
 }) => {
@@ -18,9 +23,9 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
     <View style={styles.container}>
       <TouchableOpacity
         onPress={onBack}
-        style={styles.backButton}
+        style={styles.iconButton}
         activeOpacity={0.7}
-        hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
         <Text style={styles.backIcon}>‹</Text>
       </TouchableOpacity>
@@ -29,67 +34,98 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
         {title}
       </Text>
 
-      {hasChapters && onOpenDrawer && (
+      <View style={styles.rightActions}>
         <TouchableOpacity
-          style={styles.drawerButton}
+          style={[styles.toggleBtn, isBookView && styles.toggleBtnActive]}
+          onPress={onToggleBookView}
           activeOpacity={0.75}
-          onPress={onOpenDrawer}
         >
-          <Text style={styles.drawerButtonText}>☰</Text>
+          <Text
+            style={[
+              styles.toggleBtnText,
+              isBookView && styles.toggleBtnTextActive,
+            ]}
+          >
+            {isBookView ? '📖 Book View' : '📄 Single View'}
+          </Text>
         </TouchableOpacity>
-      )}
+
+        {hasChapters && onOpenDrawer && (
+          <TouchableOpacity
+            style={styles.iconButton}
+            activeOpacity={0.75}
+            onPress={onOpenDrawer}
+          >
+            <Text style={styles.drawerIcon}>☰</Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    height: 52,
+    height: 50,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    backgroundColor: '#090D0B',
+    backgroundColor: 'rgba(9, 13, 11, 0.95)',
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.08)',
   },
-  backButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+  iconButton: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     backgroundColor: '#131B17',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
   },
   backIcon: {
     color: '#FFFFFF',
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '300',
     marginTop: -2,
-    lineHeight: 28,
+    lineHeight: 26,
+  },
+  drawerIcon: {
+    color: '#CBD5E1',
+    fontSize: 14,
+    fontWeight: '700',
   },
   title: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
     color: '#FFFFFF',
+    marginHorizontal: 12,
   },
-  drawerButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+  rightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  toggleBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
     backgroundColor: '#131B17',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 8,
   },
-  drawerButtonText: {
-    color: '#CBD5E1',
-    fontSize: 16,
+  toggleBtnActive: {
+    borderColor: colors.primaryNeon,
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+  },
+  toggleBtnText: {
+    color: '#94A3B8',
+    fontSize: 11,
     fontWeight: '700',
+  },
+  toggleBtnTextActive: {
+    color: colors.primaryNeon,
   },
 });

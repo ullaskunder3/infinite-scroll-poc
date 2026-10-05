@@ -2,19 +2,23 @@ import React from 'react';
 import { Dimensions, Image, StyleSheet, Text, View } from 'react-native';
 import { ComicPage } from '../../../api';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: DEFAULT_SCREEN_WIDTH } = Dimensions.get('window');
 
 export interface ComicPageItemProps {
   page: ComicPage;
+  width?: number;
 }
 
-export const ComicPageItem: React.FC<ComicPageItemProps> = ({ page }) => {
+export const ComicPageItem: React.FC<ComicPageItemProps> = ({
+  page,
+  width = DEFAULT_SCREEN_WIDTH,
+}) => {
   const [nativeWidth, nativeHeight] = page.resolution;
   const aspectRatio = nativeWidth > 0 ? nativeHeight / nativeWidth : 1.4;
-  const pageHeight = SCREEN_WIDTH * aspectRatio;
+  const pageHeight = Math.round(width * aspectRatio);
 
   return (
-    <View style={[styles.container, { height: pageHeight }]}>
+    <View style={[styles.container, { width, height: pageHeight }]}>
       <Image
         source={{ uri: page.pageUrl }}
         style={styles.image}
@@ -29,8 +33,7 @@ export const ComicPageItem: React.FC<ComicPageItemProps> = ({ page }) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: SCREEN_WIDTH,
-    backgroundColor: '#090D0B',
+    backgroundColor: '#000000',
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
@@ -44,13 +47,13 @@ const styles = StyleSheet.create({
     bottom: 8,
     right: 12,
     backgroundColor: 'rgba(0, 0, 0, 0.65)',
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 6,
+    borderRadius: 4,
   },
   pageNumberText: {
-    color: '#CBD5E1',
-    fontSize: 10,
+    color: '#94A3B8',
+    fontSize: 9,
     fontWeight: '700',
   },
 });
