@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  ActivityIndicator,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -9,6 +8,8 @@ import {
 import { ComicPage } from '../../../api';
 import { colors } from '../../../theme';
 import { BookPageView } from './BookPageView';
+import { ComicSvgLoader } from './ComicSvgLoader';
+import { PinchZoomWrapper } from './PinchZoomWrapper';
 import { SinglePageView } from './SinglePageView';
 
 export interface ReaderContentProps {
@@ -37,7 +38,7 @@ export const ReaderContent: React.FC<ReaderContentProps> = ({
   if (isLoading) {
     return (
       <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color={colors.primaryNeon} />
+        <ComicSvgLoader size={64} color={colors.primaryNeon} />
         <Text style={styles.statusText}>Loading chapter...</Text>
       </View>
     );
@@ -55,23 +56,23 @@ export const ReaderContent: React.FC<ReaderContentProps> = ({
     );
   }
 
-  if (isBookView) {
-    return (
-      <BookPageView
-        pages={pages}
-        screenWidth={screenWidth}
-        screenHeight={screenHeight}
-        onTap={onTap}
-      />
-    );
-  }
-
   return (
-    <SinglePageView
-      pages={pages}
-      screenWidth={screenWidth}
-      onTap={onTap}
-    />
+    <PinchZoomWrapper onTap={onTap}>
+      {isBookView ? (
+        <BookPageView
+          pages={pages}
+          screenWidth={screenWidth}
+          screenHeight={screenHeight}
+          onTap={onTap}
+        />
+      ) : (
+        <SinglePageView
+          pages={pages}
+          screenWidth={screenWidth}
+          onTap={onTap}
+        />
+      )}
+    </PinchZoomWrapper>
   );
 };
 

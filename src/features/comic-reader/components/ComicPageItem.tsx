@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Dimensions, Image, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Image, StyleSheet, View } from 'react-native';
 import { ComicPage } from '../../../api';
-import { DynamicSkeleton } from '../../../components';
+import { PageLoader } from './PageLoader';
 
 const { width: DEFAULT_SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -21,27 +21,20 @@ export const ComicPageItem: React.FC<ComicPageItemProps> = ({
 
   return (
     <View style={[styles.container, { width, height: pageHeight }]}>
-      {!isLoaded && (
-        <View style={StyleSheet.absoluteFill}>
-          <DynamicSkeleton width={width} height={pageHeight} />
-        </View>
-      )}
+      {!isLoaded && <PageLoader pageNum={page.pageNum} />}
       <Image
         source={{ uri: page.pageUrl }}
         style={[styles.image, { opacity: isLoaded ? 1 : 0 }]}
         resizeMode="contain"
         onLoadEnd={() => setIsLoaded(true)}
       />
-      <View style={styles.pageNumberBadge}>
-        <Text style={styles.pageNumberText}>{page.pageNum}</Text>
-      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#000000',
+    backgroundColor: '#090D0B',
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
@@ -49,19 +42,5 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
-  },
-  pageNumberBadge: {
-    position: 'absolute',
-    bottom: 8,
-    right: 12,
-    backgroundColor: 'rgba(0, 0, 0, 0.65)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  pageNumberText: {
-    color: '#94A3B8',
-    fontSize: 9,
-    fontWeight: '700',
   },
 });

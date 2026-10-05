@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import {
   Image,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { ComicPage } from '../../../api';
-import { DynamicSkeleton } from '../../../components';
+import { PageLoader } from './PageLoader';
 
 export interface BookPair {
   id: string;
@@ -32,20 +31,13 @@ const BookSinglePage: React.FC<{
 
   return (
     <View style={[styles.pageWrapper, { width: pageWidth, height: screenHeight }]}>
-      {!isLoaded && (
-        <View style={StyleSheet.absoluteFill}>
-          <DynamicSkeleton width={pageWidth} height={screenHeight} />
-        </View>
-      )}
+      {!isLoaded && <PageLoader pageNum={pageIndex + 1} />}
       <Image
         source={{ uri: page.pageUrl }}
         style={[styles.image, { opacity: isLoaded ? 1 : 0 }]}
         resizeMode="contain"
         onLoadEnd={() => setIsLoaded(true)}
       />
-      <View style={styles.pageBadge}>
-        <Text style={styles.pageBadgeText}>{pageIndex + 1}</Text>
-      </View>
     </View>
   );
 };
@@ -101,19 +93,5 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
-  },
-  pageBadge: {
-    position: 'absolute',
-    bottom: 12,
-    right: 12,
-    backgroundColor: 'rgba(0, 0, 0, 0.65)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  pageBadgeText: {
-    color: '#94A3B8',
-    fontSize: 9,
-    fontWeight: '700',
   },
 });

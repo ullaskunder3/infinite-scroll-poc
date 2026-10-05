@@ -80,97 +80,118 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToProfile }) =
       <StoryCard
         story={item}
         layout={layout}
-        onPress={() => openStory(item.storyId)}
+        onPress={openStory}
       />
     ),
     [layout, openStory]
   );
 
+  const renderItemSeparator = useCallback(() => {
+    if (layout === 'list') {
+      return <View style={styles.listSeparator} />;
+    }
+    return null;
+  }, [layout]);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <StatusBar barStyle="light-content" />
+        <HomeLoadingView />
+      </SafeAreaView>
+    );
+  }
+
+  if (isError) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <StatusBar barStyle="light-content" />
+        <HomeErrorView message={error?.message} onRetry={refetch} />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="light-content" />
 
-      {isLoading ? (
-        <HomeLoadingView />
-      ) : isError ? (
-        <HomeErrorView message={error?.message} onRetry={refetch} />
-      ) : (
-        <View style={styles.contentWrapper}>
-          {/* 1. Collapsible Top Welcome Header */}
-          <Animated.View
-            style={[
-              styles.collapsibleHeader,
-              {
-                transform: [{ translateY: headerTranslateY }],
-                opacity: headerOpacity,
-              },
-            ]}
-          >
-            <HomeHeader onProfilePress={onNavigateToProfile} />
-          </Animated.View>
+      <View style={styles.contentWrapper}>
+        {/* 1. Collapsible Top Welcome Header */}
+        <Animated.View
+          style={[
+            styles.collapsibleHeader,
+            {
+              transform: [{ translateY: headerTranslateY }],
+              opacity: headerOpacity,
+            },
+          ]}
+        >
+          <HomeHeader onProfilePress={onNavigateToProfile} />
+        </Animated.View>
 
-          {/* 2. Sticky Action Area (Categories + Feed Controls) */}
-          <Animated.View
-            style={[
-              styles.stickyControls,
-              {
-                transform: [{ translateY: headerTranslateY }],
-              },
-            ]}
-          >
-            <GenreFilter
-              categories={genres}
-              selectedCategory={selectedGenre}
-              onSelectCategory={setSelectedGenre}
-            />
-            <FeedSectionHeader
-              selectedGenre={selectedGenre}
-              layout={layout}
-              onSelectLayout={setLayout}
-            />
-          </Animated.View>
-
-          {/* 3. Main Virtualized Feed */}
-          <Animated.FlatList
-            key={layout}
-            data={filteredStories}
-            numColumns={layout === 'grid' ? 2 : 1}
-            keyExtractor={(item) => item.storyId}
-            renderItem={renderItem}
-            columnWrapperStyle={layout === 'grid' ? styles.columnWrapper : undefined}
-            contentContainerStyle={styles.listContent}
-            ItemSeparatorComponent={
-              layout === 'list' ? () => <View style={{ height: 12 }} /> : undefined
-            }
-            ListFooterComponent={
-              <ListFooter
-                isFetchingNextPage={isFetchingNextPage}
-                hasNextPage={hasNextPage}
-                totalCount={filteredStories.length}
-              />
-            }
-            onEndReached={handleEndReached}
-            onEndReachedThreshold={0.5}
-            onScroll={Animated.event(
-              [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-              { useNativeDriver: true }
-            )}
-            scrollEventThrottle={16}
-            refreshControl={
-              <RefreshControl
-                refreshing={isRefetching}
-                onRefresh={() => {
-                  void refetch();
-                }}
-                progressViewOffset={TOTAL_HEADER_HEIGHT}
-                tintColor={colors.primaryNeon}
-                colors={[colors.primaryNeon, colors.accentGold]}
-              />
-            }
-            ListEmptyComponent={<HomeEmptyView />}
+        {/* 2. Sticky Action Area (Categories + Feed Controls) */}
+        <Animated.View
+          style={[
+            styles.stickyControls,
+            {
+              transform: [{ translateY: headerTranslateY }],
+            },
+          ]}
+        >
+          <GenreFilter
+            categories={genres}
+            selectedCategory={selectedGenre}
+            onSelectCategory={setSelectedGenre}
           />
-        </View>
-      )}
+          <FeedSectionHeader
+            selectedGenre={selectedGenre}
+            layout={layout}
+            onSelectLayout={setLayout}
+          />
+        </Animated.View>
+
+        {/* 3. Main Virtualized Feed */}
+        <Animated.FlatList
+          key={layout}
+          data={filteredStories}
+          numColumns={layout === 'grid' ? 2 : 1}
+          keyExtractor={(item) => item.storyId}
+          renderItem={renderItem}
+          columnWrapperStyle={layout === 'grid' ? styles.columnWrapper : undefined}
+          contentContainerStyle={styles.listContent}
+          ItemSeparatorComponent={renderItemSeparator}
+          initialNumToRender={8}
+          maxToRenderPerBatch={8}
+          windowSize={7}
+          updateCellsBatchingPeriod={50}
+          ListFooterComponent={
+            <ListFooter
+              isFetchingNextPage={isFetchingNextPage}
+              hasNextPage={hasNextPage}
+              totalCount={filteredStories.length}
+            />
+          }
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.5}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+            { useNativeDriver: true }
+          )}
+          scrollEventThrottle={16}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={() => {
+                void refetch();
+              }}
+              progressViewOffset={TOTAL_HEADER_HEIGHT}
+              tintColor={colors.primaryNeon}
+              colors={[colors.primaryNeon, colors.accentGold]}
+            />
+          }
+          ListEmptyComponent={<HomeEmptyView />}
+        />
+      </View>
     </SafeAreaView>
   );
 };
@@ -211,5 +232,8 @@ const styles = StyleSheet.create({
   columnWrapper: {
     gap: 12,
     marginBottom: 12,
+  },
+  listSeparator: {
+    height: 12,
   },
 });

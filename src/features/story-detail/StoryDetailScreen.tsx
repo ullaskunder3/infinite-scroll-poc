@@ -91,6 +91,55 @@ export const StoryDetailScreen: React.FC<StoryDetailScreenProps> = ({
     return <View style={styles.footerSpacer} />;
   }, [isFetchingNextPage]);
 
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color={colors.primaryNeon} />
+          <Text style={styles.loadingText}>Loading chapters...</Text>
+        </View>
+      );
+    }
+
+    if (isError) {
+      return (
+        <View style={styles.centerContainer}>
+          <AlertCircle size={32} color="#ff6b6b" style={{ marginBottom: 8 }} />
+          <Text style={styles.errorTitle}>Unable to load story</Text>
+          <Text style={styles.errorMessage}>{error?.message}</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
+            <Text style={styles.retryText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return (
+      <FlatList
+        data={chapters}
+        keyExtractor={(item) => item.chapterId}
+        renderItem={renderItem}
+        ListHeaderComponent={renderHeader}
+        ListFooterComponent={renderFooter}
+        contentContainerStyle={styles.listContent}
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        }}
+        onEndReachedThreshold={0.5}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={refetch}
+            tintColor={colors.primaryNeon}
+          />
+        }
+        showsVerticalScrollIndicator={false}
+      />
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="light-content" />
@@ -101,44 +150,7 @@ export const StoryDetailScreen: React.FC<StoryDetailScreenProps> = ({
         onBack={handleBack}
       />
 
-      {isLoading ? (
-        <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color={colors.primaryNeon} />
-          <Text style={styles.loadingText}>Loading chapters...</Text>
-        </View>
-      ) : isError ? (
-        <View style={styles.centerContainer}>
-          <AlertCircle size={32} color="#ff6b6b" style={{ marginBottom: 8 }} />
-          <Text style={styles.errorTitle}>Unable to load story</Text>
-          <Text style={styles.errorMessage}>{error?.message}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={() => refetch()}>
-            <Text style={styles.retryText}>Retry</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <FlatList
-          data={chapters}
-          keyExtractor={(item) => item.chapterId}
-          renderItem={renderItem}
-          ListHeaderComponent={renderHeader}
-          ListFooterComponent={renderFooter}
-          contentContainerStyle={styles.listContent}
-          onEndReached={() => {
-            if (hasNextPage && !isFetchingNextPage) {
-              fetchNextPage();
-            }
-          }}
-          onEndReachedThreshold={0.5}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefetching}
-              onRefresh={refetch}
-              tintColor={colors.primaryNeon}
-            />
-          }
-          showsVerticalScrollIndicator={false}
-        />
-      )}
+      {renderContent()}
     </SafeAreaView>
   );
 };

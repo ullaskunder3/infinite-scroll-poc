@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import {
   FlatList,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -8,6 +9,7 @@ import {
 } from 'react-native';
 import { ComicPage } from '../../../api';
 import { colors } from '../../../theme';
+import { useReaderStore } from '../store';
 import { ComicPageItem } from './ComicPageItem';
 
 export interface SinglePageViewProps {
@@ -21,13 +23,16 @@ export const SinglePageView: React.FC<SinglePageViewProps> = ({
   screenWidth,
   onTap,
 }) => {
-  // Precompute page heights & cumulative offsets for O(1) getItemLayout
+  const zoomScale = useReaderStore((s) => s.zoomScale);
+  const renderWidth = Math.round(screenWidth * zoomScale);
+
+  // Precompute proportional page heights & cumulative offsets for O(1) getItemLayout
   const pageHeights = useMemo(() => {
     return pages.map((p) => {
       const [w, h] = p.resolution;
-      return w > 0 ? Math.round(screenWidth * (h / w)) : Math.round(screenWidth * 1.4);
+      return w > 0 ? Math.round(renderWidth * (h / w)) : Math.round(renderWidth * 1.4);
     });
-  }, [pages, screenWidth]);
+  }, [pages, renderWidth]);
 
   const pageOffsets = useMemo(() => {
     const offsets: number[] = [0];
@@ -37,23 +42,23 @@ export const SinglePageView: React.FC<SinglePageViewProps> = ({
     return offsets;
   }, [pageHeights]);
 
-  return (
+  const listContent = (
     <FlatList<ComicPage>
       data={pages}
-      key="single-view-flatlist"
+      key={`single-view-flatlist-${renderWidth}`}
       keyExtractor={(item) => `single-page-${item.pageNum}`}
       initialNumToRender={2}
       maxToRenderPerBatch={2}
       windowSize={5}
       removeClippedSubviews
       getItemLayout={(_, index) => ({
-        length: pageHeights[index] || screenWidth * 1.4,
+        length: pageHeights[index] || renderWidth * 1.4,
         offset: pageOffsets[index] || 0,
         index,
       })}
       renderItem={({ item }) => (
         <TouchableOpacity activeOpacity={1} onPress={onTap}>
-          <ComicPageItem page={item} width={screenWidth} />
+          <ComicPageItem page={item} width={renderWidth} />
         </TouchableOpacity>
       )}
       showsVerticalScrollIndicator={false}
@@ -64,6 +69,21 @@ export const SinglePageView: React.FC<SinglePageViewProps> = ({
       }
     />
   );
+
+  if (zoomScale > 1.0) {
+    return (
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ width: renderWidth }}
+        bounces={false}
+      >
+        {listContent}
+      </ScrollView>
+    );
+  }
+
+  return listContent;
 };
 
 const styles = StyleSheet.create({

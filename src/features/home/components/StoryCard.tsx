@@ -12,19 +12,23 @@ import { StorySummary } from '../../../api';
 export interface StoryCardProps {
   story: StorySummary;
   layout?: 'grid' | 'list';
-  onPress?: () => void;
+  onPress?: (storyId: string) => void;
 }
 
-export const StoryCard: React.FC<StoryCardProps> = ({
+export const StoryCard: React.FC<StoryCardProps> = React.memo(({
   story,
   layout = 'grid',
   onPress,
 }) => {
+  const handlePress = React.useCallback(() => {
+    onPress?.(story.storyId);
+  }, [onPress, story.storyId]);
+
   if (layout === 'list') {
     return (
       <TouchableOpacity
         activeOpacity={0.85}
-        onPress={onPress}
+        onPress={handlePress}
         style={styles.listCard}
       >
         {/* Left Poster Image */}
@@ -82,7 +86,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({
   return (
     <TouchableOpacity
       activeOpacity={0.88}
-      onPress={onPress}
+      onPress={handlePress}
       style={styles.gridCard}
     >
       {/* Full-Bleed Poster Background Image */}
@@ -122,14 +126,14 @@ export const StoryCard: React.FC<StoryCardProps> = ({
 
           <View style={styles.posterMetaRow}>
             <View style={styles.inlineTag}>
-              <Tag size={11} color="#94A3B8" />
-              <Text style={styles.metaItemText} numberOfLines={1}>
+              <Tag size={10} color="#94A3B8" />
+              <Text style={styles.metaItemText} numberOfLines={1} ellipsizeMode="tail">
                 {story.tags?.[1] || story.tags?.[0] || 'Webtoon'}
               </Text>
             </View>
             <View style={styles.inlineMeta}>
               <Star size={11} color="#FBBF24" fill="#FBBF24" />
-              <Text style={styles.metaItemTextGold}>
+              <Text style={styles.metaItemTextGold} numberOfLines={1}>
                 {story.views}
               </Text>
             </View>
@@ -142,13 +146,14 @@ export const StoryCard: React.FC<StoryCardProps> = ({
       </View>
     </TouchableOpacity>
   );
-};
+});
+StoryCard.displayName = 'StoryCard';
 
 const styles = StyleSheet.create({
   // ================= GRID CARD STYLES =================
   gridCard: {
-    width: 172,
-    height: 258,
+    flex: 1,
+    height: 260,
     borderRadius: 22,
     backgroundColor: '#131B17',
     position: 'relative',
@@ -241,28 +246,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 6,
+    gap: 4,
+  },
+  inlineTag: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    marginRight: 6,
   },
   metaItemText: {
     color: '#CBD5E1',
     fontSize: 10,
     fontWeight: '600',
-    flex: 1,
-    marginRight: 4,
-  },
-  metaItemTextGold: {
-    color: '#FBBF24',
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  inlineTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
+    flexShrink: 1,
   },
   inlineMeta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
+    flexShrink: 0,
+  },
+  metaItemTextGold: {
+    color: '#FBBF24',
+    fontSize: 10,
+    fontWeight: '700',
   },
   actionPill: {
     backgroundColor: '#10B981',

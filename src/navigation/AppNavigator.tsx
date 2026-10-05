@@ -41,7 +41,7 @@ export function AppTabs() {
           tabBarIcon: ({ color }) => <Home size={22} color={color} />,
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Search"
         component={SearchScreen}
         options={{
@@ -54,7 +54,7 @@ export function AppTabs() {
         options={{
           tabBarIcon: ({ color }) => <User size={22} color={color} />,
         }}
-      />
+      /> */}
     </Tab.Navigator>
   );
 }

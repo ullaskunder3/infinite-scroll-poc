@@ -67,3 +67,12 @@ avoid pyramid of doom and
   the main return statement extremely clean
 
   in comicreaderScreen line 70
+
+zoom scale + asyncstorage -> survices chaper change app restarts
+pagewidth = width*zoomscale
+
+have added svg animation loader.svg use that for commic reader
+  shwo that intill we have data properly instead of any spinner
+  or skeleton
+
+  VirtualizedList: You have a large list that is slow to update - make sure your renderItem function renders components that follow React performance best practices like PureComponent, shouldComponentUpdate, etc. {dt: 606, prevDt: 694, contentLength: 5696}

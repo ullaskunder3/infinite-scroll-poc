@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { ComicPage } from '../../../api';
 import { colors } from '../../../theme';
+import { useReaderStore } from '../store';
 import { BookPair, BookViewItem } from './BookViewItem';
 
 export interface BookPageViewProps {
@@ -17,6 +18,9 @@ export const BookPageView: React.FC<BookPageViewProps> = ({
   screenHeight,
   onTap,
 }) => {
+  const zoomScale = useReaderStore((s) => s.zoomScale);
+  const renderWidth = Math.round(screenWidth * zoomScale);
+  const renderHeight = Math.round(screenHeight * zoomScale);
   // Pair pages for 2-page horizontal spread (Page 1 cover alone, then 2-3, 4-5...)
   const bookPairs: BookPair[] = useMemo(() => {
     if (pages.length === 0) return [];
@@ -49,7 +53,7 @@ export const BookPageView: React.FC<BookPageViewProps> = ({
   return (
     <FlatList<BookPair>
       data={bookPairs}
-      key="book-page-flatlist"
+      key={`book-page-flatlist-${renderWidth}`}
       horizontal
       pagingEnabled
       showsHorizontalScrollIndicator={false}
@@ -61,14 +65,14 @@ export const BookPageView: React.FC<BookPageViewProps> = ({
       renderItem={({ item }) => (
         <BookViewItem
           pair={item}
-          screenWidth={screenWidth}
-          screenHeight={screenHeight}
+          screenWidth={renderWidth}
+          screenHeight={renderHeight}
           onTap={onTap}
         />
       )}
       getItemLayout={(_, index) => ({
-        length: screenWidth,
-        offset: screenWidth * index,
+        length: renderWidth,
+        offset: renderWidth * index,
         index,
       })}
       ListEmptyComponent={
